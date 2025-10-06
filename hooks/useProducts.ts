@@ -25,7 +25,7 @@ export function useProducts(first: number = 20): UseProductsReturn {
     endCursor: null,
   });
 
-  const fetchProducts = async (after?: string, append: boolean = false) => {
+  const fetchProducts = async (after?: string | null, append: boolean = false) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
       

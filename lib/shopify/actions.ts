@@ -13,7 +13,7 @@ export async function getProduct(handle: string): Promise<ShopifyProduct | null>
   }
 }
 
-export async function getProducts(first: number = 20, after?: string) {
+export async function getProducts(first: number = 20, after?: string): Promise<{ products: ShopifyProduct[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } }> {
   try {
     return await shopifyClient.getProducts(first, after);
   } catch (error) {
@@ -22,7 +22,7 @@ export async function getProducts(first: number = 20, after?: string) {
   }
 }
 
-export async function getCollections(first: number = 10) {
+export async function getCollections(first: number = 10): Promise<ShopifyCollection[]> {
   try {
     return await shopifyClient.getCollections(first);
   } catch (error) {

@@ -43,7 +43,6 @@ export function ProductGallery({ images }: ProductGalleryProps) {
             style={{
               // @ts-expect-error: CSS custom properties for Swiper
               '--swiper-navigation-color': '#ffffff',
-              // @ts-expect-error: CSS custom properties for Swiper
               '--swiper-navigation-size': '20px'
             }}
           >
@@ -57,7 +56,15 @@ export function ProductGallery({ images }: ProductGalleryProps) {
                   caption={image.altText || 'Product image'}
                 >
                   {({ ref, open }) => (
-                    <button ref={ref as React.MutableRefObject<HTMLButtonElement | null>} onClick={open} className="relative block w-full h-full">
+                    <button
+                      ref={(el) => {
+                        // forward button element to photoswipe ref (expects HTMLElement | null)
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        (ref as any)(el);
+                      }}
+                      onClick={open}
+                      className="relative block w-full h-full"
+                    >
                       <Image
                         src={image.url}
                         alt={image.altText || 'Product image'}

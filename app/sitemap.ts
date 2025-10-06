@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getProducts, getCollections } from '@/lib/shopify/actions';
+import type { ShopifyProduct, ShopifyCollection } from '@/lib/shopify/types';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
@@ -29,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // 动态产品页面
     const { products } = await getProducts(1000); // 获取更多产品用于 sitemap
-    const productPages = products.map((product) => ({
+    const productPages = products.map((product: ShopifyProduct) => ({
       url: `${baseUrl}/products/${product.handle}`,
       lastModified: new Date(product.updatedAt),
       changeFrequency: 'weekly' as const,
@@ -38,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 动态分类页面
     const collections = await getCollections(100);
-    const collectionPages = collections.map((collection) => ({
+    const collectionPages = collections.map((collection: ShopifyCollection) => ({
       url: `${baseUrl}/collections/${collection.handle}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
