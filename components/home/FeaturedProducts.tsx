@@ -20,7 +20,6 @@ async function FeaturedProductsContent() {
 export default function FeaturedProducts() {
   return (
     <Suspense fallback={<LoadingSection message="Loading featured products..." /> }>
-      {/* @ts-expect-error Server Component */}
       <FeaturedProductsContent />
     </Suspense>
   );
