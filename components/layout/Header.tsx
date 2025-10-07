@@ -4,12 +4,16 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/stores/cartStore';
-import { ShoppingBag, Menu, X } from 'lucide-react';
+import { ShoppingBag, Menu, X, User } from 'lucide-react';
 import { useCollections } from '@/hooks/useCollections';
+import { usePathname } from 'next/navigation';
 
 export function Header() {
   const { cart, toggleCart } = useCartStore();
   const [customerEmail, setCustomerEmail] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   useEffect(() => {
     let ignore = false;
@@ -25,15 +29,18 @@ export function Header() {
     return () => { ignore = true; };
   }, []);
 
-  const signOut = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      setCustomerEmail(null);
-      window.location.href = '/';
-    } catch {
-      // ignore
-    }
-  };
+  // 滚动监听器
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setScrolled(scrollTop >= 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // sign out handled within account area; no direct sign out button in header
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -79,75 +86,106 @@ export function Header() {
   }, [megaOpen]);
 
   return (
-    <header className="bg-white shadow-sm border-b relative z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out ${scrolled ? 'bg-white shadow-sm border-b' : 'bg-transparent border-none shadow-none'}`}>
+      <div className="flex justify-center px-12">
+        <div className="w-full flex justify-between items-center h-36">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-gray-900">Shopify Store</span>
+            <span className={`text-2xl font-bold transition-colors duration-300 ease-in-out ${scrolled ? 'text-gray-900' : 'text-white'}`}>Shopify Store</span>
           </Link>
 
+          {/* Right: menu + account/cart */}
+          <div className="flex items-center gap-4">
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-2 relative">
             <Link 
-              href="/" 
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              href="#" 
+              className={`${scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out`}
             >
-              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Home</span>
+              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">About Me</span>
             </Link>
             <button
               type="button"
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${megaOpen ? 'text-gray-900' : 'text-gray-700 hover:text-gray-900'}`}
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out ${scrolled ? (megaOpen ? 'text-gray-900' : 'text-gray-700 hover:text-gray-900') : (megaOpen ? 'text-white' : 'text-white/90 hover:text-white')}`}
               onMouseEnter={openMega}
               onFocus={openMega}
               onMouseLeave={closeMega}
               aria-haspopup="true"
               aria-expanded={megaOpen}
             >
-              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Shop</span>
+              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Gallery</span>
             </button>
             <Link 
-              href="/collections" 
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              href="#" 
+              className={`${scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out`}
             >
-              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Collections</span>
+              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Process</span>
+            </Link>
+            <Link 
+              href="#" 
+              className={`${scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out`}
+            >
+              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Blog</span>
+            </Link>
+            <Link 
+              href="#" 
+              className={`${scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out`}
+            >
+              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Contact Me</span>
             </Link>
 
             {/* Mega panel */}
             {megaVisible && (
               <div
-                className={`fixed left-0 right-0 top-16 z-40 bg-white border-t border-b transition-opacity duration-200 ${megaEntered ? 'opacity-100' : 'opacity-0'}`}
+                className={`fixed left-0 right-0 top-36 z-40 transition-opacity duration-200 ${megaEntered ? 'opacity-100' : 'opacity-0'}`}
                 onMouseEnter={openMega}
                 onMouseLeave={closeMega}
               >
-                <div className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 transform transition-transform duration-200 ${megaEntered ? 'translate-y-0' : 'translate-y-2'}`}>
-                  <div className="w-full grid grid-cols-4 gap-6">
-                    <div className="col-span-1">
-                      <div className="text-xs uppercase tracking-wide text-gray-500 mb-3">Featured</div>
-                      <ul className="space-y-2">
-                        <li><Link href="/products" className="block text-gray-800 hover:text-blue-600"><span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">All Products</span></Link></li>
-                        <li><Link href="/collections" className="block text-gray-800 hover:text-blue-600"><span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">All Collections</span></Link></li>
-                      </ul>
-                    </div>
-                    <div className="col-span-3 grid grid-cols-3 gap-6">
-                      {collections.map((c) => (
-                        <div key={c.id}>
-                          <Link href={`/collections`} className="font-medium text-gray-900 hover:text-blue-600">
-                            <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">{c.title}</span>
-                          </Link>
-                          {c.products?.length ? (
-                            <ul className="mt-2 space-y-1">
-                              {c.products.slice(0, 4).map((p) => (
-                                <li key={p.id}>
-                                  <Link href={`/products/${p.handle}`} className="text-sm text-gray-700 hover:text-blue-600">
-                                    <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">{p.title}</span>
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : null}
+                <div className="flex justify-center px-12">
+                  <div className={`w-full bg-white border-t border-b rounded-lg shadow-lg py-6 transform transition-transform duration-200 ${megaEntered ? 'translate-y-0' : 'translate-y-2'}`}>
+                    <div className="px-6">
+                      <div className="w-full grid grid-cols-4">
+                        {/* Column 1 - NATURE */}
+                        <div className="pr-6 border-r border-gray-200">
+                          <div className="text-sm font-semibold text-gray-900 mb-4">NATURE</div>
+                          <ul className="space-y-3">
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">New Releases</Link></li>
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">The Grand Landscape</Link></li>
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Intimate Scenes</Link></li>
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Wildlife</Link></li>
+                          </ul>
                         </div>
-                      ))}
+
+                        {/* Column 2 - LIFESTYLE */}
+                        <div className="px-6 border-r border-gray-200">
+                          <div className="text-sm font-semibold text-gray-900 mb-4">LIFESTYLE</div>
+                          <ul className="space-y-3">
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Environmental Portraits</Link></li>
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Companions</Link></li>
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Family</Link></li>
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Love</Link></li>
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Portraits</Link></li>
+                          </ul>
+                        </div>
+
+                        {/* Column 3 - WEDDINGS */}
+                        <div className="px-6 border-r border-gray-200">
+                          <div className="text-sm font-semibold text-gray-900 mb-4">WEDDINGS</div>
+                          <ul className="space-y-3">
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Elopements</Link></li>
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Weddings</Link></li>
+                          </ul>
+                        </div>
+
+                        {/* Column 4 - BUSINESS */}
+                        <div className="pl-6">
+                          <div className="text-sm font-semibold text-gray-900 mb-4">BUSINESS</div>
+                          <ul className="space-y-3">
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Commercial</Link></li>
+                            <li><Link href="#" className="block text-gray-600 hover:text-gray-900 transition-colors">Events</Link></li>
+                          </ul>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -160,33 +198,32 @@ export function Header() {
             {/* Mobile hamburger */}
             <button
               type="button"
-              className="md:hidden h-9 w-9 grid place-items-center rounded hover:bg-gray-100"
+              className={`md:hidden h-9 w-9 grid place-items-center rounded transition-colors duration-300 ease-in-out ${scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
               aria-label="Toggle menu"
               onClick={() => setMobileOpen((v) => !v)}
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            <Button 
-              variant="outline" 
-              size="sm"
+            <button 
               onClick={toggleCart}
-              className="relative"
+              aria-label="Open cart"
+              className={`relative h-9 w-9 flex items-center justify-center rounded-md transition-colors duration-300 ease-in-out ${scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
             >
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Cart ({cart?.totalQuantity || 0})
-            </Button>
-            {customerEmail ? (
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" asChild>
-                  <Link href="/account">Account</Link>
-                </Button>
-                <Button size="sm" onClick={signOut}>Sign Out</Button>
-              </div>
-            ) : (
-              <Button size="sm" asChild>
-                <Link href="/account/login">Sign In</Link>
-              </Button>
-            )}
+              <ShoppingBag className="h-5 w-5" />
+              {(cart?.totalQuantity || 0) > 0 && (
+                <span className={`absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full text-[10px] font-medium ${scrolled ? 'bg-black text-white' : 'bg-white text-black'} h-4 min-w-4 px-1`}>
+                  {cart?.totalQuantity}
+                </span>
+              )}
+            </button>
+            <Link
+              href={customerEmail ? '/account' : '/account/login'}
+              aria-label={customerEmail ? 'Account' : 'Sign in'}
+              className={`h-9 w-9 flex items-center justify-center rounded-md transition-colors duration-300 ease-in-out ${scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
+            >
+              <User className="h-5 w-5" />
+            </Link>
+          </div>
           </div>
         </div>
       </div>
@@ -205,14 +242,13 @@ export function Header() {
               </button>
             </div>
             <nav className="flex flex-col py-2">
-              <Link href="/" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Home</Link>
-              <Link href="/products" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Products</Link>
-              <Link href="/collections" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Collections</Link>
+              <Link href="#" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>About Me</Link>
+              <Link href="#" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Gallery</Link>
+              <Link href="#" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Process</Link>
+              <Link href="#" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Blog</Link>
+              <Link href="#" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Contact Me</Link>
               {customerEmail ? (
-                <>
-                  <Link href="/account" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Account</Link>
-                  <button className="text-left px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => { setMobileOpen(false); signOut(); }}>Sign Out</button>
-                </>
+                <Link href="/account" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Account</Link>
               ) : (
                 <Link href="/account/login" className="px-4 py-3 text-gray-700 hover:bg-gray-50" onClick={() => setMobileOpen(false)}>Sign In</Link>
               )}

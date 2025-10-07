@@ -4,12 +4,29 @@ import type { ShopifyProduct } from '@/lib/shopify/types';
 interface ProductGridProps {
   products: ShopifyProduct[];
   isLoading?: boolean;
+  columns?: {
+    mobile?: number;
+    tablet?: number;
+    desktop?: number;
+  };
 }
 
-export function ProductGrid({ products, isLoading = false }: ProductGridProps) {
+export function ProductGrid({ 
+  products, 
+  isLoading = false, 
+  columns = { mobile: 1, tablet: 2, desktop: 3 } 
+}: ProductGridProps) {
+  // 生成动态grid类名
+  const getGridClasses = () => {
+    const mobileCols = `grid-cols-${columns.mobile || 1}`;
+    const tabletCols = `sm:grid-cols-${columns.tablet || 2}`;
+    const desktopCols = `lg:grid-cols-${columns.desktop || 3}`;
+    return `grid ${mobileCols} ${tabletCols} ${desktopCols} gap-10`;
+  };
+
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className={getGridClasses()}>
         {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="bg-gray-200 rounded-lg aspect-square animate-pulse" />
         ))}
@@ -27,7 +44,7 @@ export function ProductGrid({ products, isLoading = false }: ProductGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className={getGridClasses()}>
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
