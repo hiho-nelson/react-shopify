@@ -42,7 +42,6 @@ async function BlogTeasersContent() {
 export default function BlogTeasers() {
   return (
     <Suspense fallback={<LoadingSection message="Loading blog articles..." /> }>
-      {/* @ts-expect-error Server Component */}
       <BlogTeasersContent />
     </Suspense>
   );
