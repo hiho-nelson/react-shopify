@@ -8,7 +8,7 @@ export const SHOPIFY_CONFIG = {
 } as const;
 
 // GraphQL 查询
-import { GET_PRODUCTS, GET_PRODUCT_BY_HANDLE } from './queries/products';
+import { GET_PRODUCTS, GET_PRODUCT_BY_HANDLE, SEARCH_PRODUCTS } from './queries/products';
 import { GET_BLOG_ARTICLES } from './queries/articles';
 import { GET_COLLECTIONS } from './queries/collections';
 import { CART_CREATE, CART_GET, CART_LINES_ADD, CART_LINES_UPDATE, CART_LINES_REMOVE } from './queries/cart';
@@ -17,6 +17,7 @@ import { CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_CREATE, CUSTOMER_ACCESS_TOKEN_RE
 export const SHOPIFY_QUERIES = {
   GET_PRODUCTS,
   GET_PRODUCT_BY_HANDLE,
+  SEARCH_PRODUCTS,
   GET_COLLECTIONS,
   GET_BLOG_ARTICLES,
   CART_CREATE,

@@ -3,14 +3,16 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useCartStore } from '@/stores/cartStore';
-import { ShoppingBag, Menu, X, User } from 'lucide-react';
+import { ShoppingBag, Menu, X, User, Search } from 'lucide-react';
 import { useCollections } from '@/hooks/useCollections';
 import { usePathname } from 'next/navigation';
+import { SearchModal } from '@/components/shopify/SearchModal';
 
 export function Header() {
   const { cart, toggleCart } = useCartStore();
   const [customerEmail, setCustomerEmail] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === '/';
 
@@ -196,6 +198,15 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
+            {/* Search button */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search products"
+              className={`h-9 w-9 flex items-center justify-center rounded-md transition-colors duration-300 ease-in-out ${solid ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
+            >
+              <Search className="h-5 w-5" />
+            </button>
+            
             {/* Mobile hamburger */}
             <button
               type="button"
@@ -257,6 +268,12 @@ export function Header() {
           </div>
         </>
       )}
+
+      {/* Search Modal */}
+      <SearchModal 
+        isOpen={searchOpen} 
+        onClose={() => setSearchOpen(false)} 
+      />
     </header>
   );
 }

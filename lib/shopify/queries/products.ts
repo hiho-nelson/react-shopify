@@ -104,3 +104,56 @@ export const GET_PRODUCT_BY_HANDLE = `
   }
 `;
 
+export const SEARCH_PRODUCTS = `
+  query searchProducts($query: String!, $first: Int!) {
+    products(first: $first, query: $query) {
+      edges {
+        node {
+          id
+          title
+          description
+          handle
+          availableForSale
+          tags
+          createdAt
+          updatedAt
+          images(first: 1) {
+            edges {
+              node {
+                id
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+          variants(first: 1) {
+            edges {
+              node {
+                id
+                title
+                availableForSale
+                price {
+                  amount
+                  currencyCode
+                }
+                selectedOptions {
+                  name
+                  value
+                }
+              }
+            }
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+

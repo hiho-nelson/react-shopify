@@ -22,6 +22,15 @@ export async function getProducts(first: number = 20, after?: string): Promise<{
   }
 }
 
+export async function searchProducts(query: string, first: number = 10): Promise<{ products: ShopifyProduct[] }> {
+  try {
+    return await shopifyClient.searchProducts(query, first);
+  } catch (error) {
+    console.error('Error searching products:', error);
+    return { products: [] };
+  }
+}
+
 export async function getCollections(first: number = 10): Promise<ShopifyCollection[]> {
   try {
     return await shopifyClient.getCollections(first);

@@ -169,6 +169,18 @@ class ShopifyClient {
     return data.product ? this.transformProduct(data.product) : null;
   }
 
+  // 搜索产品
+  async searchProducts(query: string, first: number = 10) {
+    const data = await this.graphqlRequest(SHOPIFY_QUERIES.SEARCH_PRODUCTS, {
+      query,
+      first,
+    });
+
+    return {
+      products: data.products.edges.map((edge: any) => this.transformProduct(edge.node)),
+    };
+  }
+
   // 获取分类列表
   async getCollections(first: number = 10) {
     const data = await this.graphqlRequest(SHOPIFY_QUERIES.GET_COLLECTIONS, {

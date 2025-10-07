@@ -85,18 +85,23 @@ export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
 
   return (
     <>
-      <div className={`fixed inset-0 z-[70] transition-opacity duration-200 ${entered ? 'opacity-100 bg-black/40' : 'opacity-0 bg-black/40'}`} onClick={onClose} />
-      <div className={`fixed inset-0 z-[80] flex items-center justify-center p-4 transition-opacity duration-200 ${entered ? 'opacity-100' : 'opacity-0'}`}>
-        <div className={`w-full max-w-xl bg-white rounded-lg shadow-xl overflow-hidden transform transition-transform duration-200 ${entered ? 'scale-100' : 'scale-95'}`}>
+      <div 
+        className={`fixed inset-0 z-[70] flex items-center justify-center p-4 transition-opacity duration-200 ${entered ? 'opacity-100 bg-black/40' : 'opacity-0 bg-black/40'}`}
+        onClick={onClose}
+      >
+        <div 
+          className={`w-full max-w-xl bg-white shadow-xl overflow-hidden transform transition-transform duration-200 ${entered ? 'scale-100' : 'scale-95'}`}
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="flex items-center justify-between p-4 border-b">
             <h3 className="text-lg font-semibold">{product.title}</h3>
-            <button className="h-8 w-8 grid place-items-center rounded hover:bg-gray-100" onClick={onClose}>
+            <button className="h-8 w-8 grid place-items-center hover:bg-gray-100" onClick={onClose}>
               <X className="h-4 w-4" />
             </button>
           </div>
           <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-1">
-              <div className="relative aspect-square rounded-md overflow-hidden bg-gray-100">
+              <div className="relative aspect-square overflow-hidden bg-gray-100">
                 {image && (
                   <Image src={image.url} alt={image.altText || product.title} fill className="object-cover" sizes="200px" />
                 )}
@@ -114,7 +119,7 @@ export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
                       <div key={name} className="flex flex-col">
                         <label className="mb-1 text-sm text-gray-700">{name}</label>
                         <select
-                          className="h-10 rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="h-10 border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                           value={selectedOptions[name] || values[0] || ''}
                           onChange={(e) => setSelectedOptions((prev) => ({ ...prev, [name]: e.target.value }))}
                         >
@@ -130,13 +135,13 @@ export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
               <div>
                 <label className="block text-sm text-gray-700 mb-1">Quantity</label>
                 <div className="flex items-center gap-2">
-                  <button className="h-8 w-8 border rounded" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+                  <button className="h-8 w-8 border" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
                   <span className="w-10 text-center">{quantity}</span>
-                  <button className="h-8 w-8 border rounded" onClick={() => setQuantity(quantity + 1)}>+</button>
+                  <button className="h-8 w-8 border" onClick={() => setQuantity(quantity + 1)}>+</button>
                 </div>
               </div>
               <button
-                className="w-full h-10 rounded-md bg-black text-white disabled:opacity-50"
+                className="w-full h-10 bg-black text-white disabled:opacity-50"
                 disabled={!selectedVariant?.availableForSale || loading}
                 onClick={handleAdd}
               >
