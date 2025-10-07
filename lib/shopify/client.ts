@@ -1,5 +1,5 @@
 import { SHOPIFY_CONFIG, SHOPIFY_QUERIES } from './config';
-import type { ShopifyProduct, ShopifyCollection, ShopifyCart, CartItem } from './types';
+import type { ShopifyProduct, ShopifyCollection, ShopifyCart, CartItem, ShopifyArticle } from './types';
 
 // Shopify Storefront API 客户端
 class ShopifyClient {
@@ -176,6 +176,32 @@ class ShopifyClient {
     });
 
     return data.collections.edges.map((edge: any) => this.transformCollection(edge.node));
+  }
+
+  // 获取博客文章
+  async getBlogArticles(handle: string, first: number = 3): Promise<ShopifyArticle[]> {
+    const data = await this.graphqlRequest(SHOPIFY_QUERIES.GET_BLOG_ARTICLES, { handle, first });
+    const edges = data.blog?.articles?.edges || [];
+    return edges.map((edge: any) => {
+      const a = edge.node;
+      return {
+        id: a.id,
+        title: a.title,
+        handle: a.handle,
+        excerpt: a.excerpt || '',
+        publishedAt: a.publishedAt,
+        authorName: a.authorV2?.name,
+        image: a.image
+          ? {
+              id: a.image.id,
+              url: a.image.url,
+              altText: a.image.altText,
+              width: a.image.width,
+              height: a.image.height,
+            }
+          : null,
+      } as ShopifyArticle;
+    });
   }
 
   // 转换产品数据格式

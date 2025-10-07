@@ -47,6 +47,16 @@ export interface ShopifyCollection {
   products: ShopifyProduct[];
 }
 
+export interface ShopifyArticle {
+  id: string;
+  title: string;
+  handle: string;
+  excerpt: string;
+  publishedAt: string;
+  authorName?: string;
+  image: ShopifyImage | null;
+}
+
 export interface ShopifyCart {
   id: string;
   lines: ShopifyCartLine[];

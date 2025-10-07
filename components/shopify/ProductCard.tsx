@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import type { ShopifyProduct } from '@/lib/shopify/types';
 import { QuickAddModal } from './QuickAddModal';
-import { Plus } from 'lucide-react';
+import { Plus, ShoppingCart } from 'lucide-react';
 
 interface ProductCardProps {
   product: ShopifyProduct;
@@ -60,9 +60,18 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.title}
           </h3>
           
-          <p className="text-sm text-gray-600 line-clamp-3 border-l-1 border-black pl-3 ml-5">
-            {shortDescription}
-          </p>
+          <div className="flex items-start gap-3">
+            <p className="flex-1 text-sm text-gray-600 line-clamp-3 border-l-1 border-black pl-3">
+              {shortDescription}
+            </p>
+            <button
+              type="button"
+              className="mt-0.5 w-10 h-10 flex-shrink-0 flex cursor-pointer items-center justify-center border border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-black hover:text-white transition-colors duration-200"
+              aria-label="View product"
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </Link>
       <QuickAddModal product={product} open={open} onClose={() => setOpen(false)} />

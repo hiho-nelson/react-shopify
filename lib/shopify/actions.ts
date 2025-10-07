@@ -1,7 +1,7 @@
 'use server';
 
 import { shopifyClient } from './client';
-import type { ShopifyProduct, ShopifyCollection, ShopifyCart, CartItem } from './types';
+import type { ShopifyProduct, ShopifyCollection, ShopifyCart, CartItem, ShopifyArticle } from './types';
 
 // 服务端产品操作 - 无缓存，直接调用
 export async function getProduct(handle: string): Promise<ShopifyProduct | null> {
@@ -27,6 +27,15 @@ export async function getCollections(first: number = 10): Promise<ShopifyCollect
     return await shopifyClient.getCollections(first);
   } catch (error) {
     console.error('Error fetching collections:', error);
+    return [];
+  }
+}
+
+export async function getBlogArticles(handle: string, first: number = 3): Promise<ShopifyArticle[]> {
+  try {
+    return await shopifyClient.getBlogArticles(handle, first);
+  } catch (error) {
+    console.error('Error fetching blog articles:', error);
     return [];
   }
 }
