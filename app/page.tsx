@@ -3,7 +3,6 @@ import FeaturedProducts from "@/components/home/FeaturedProducts";
 import BlogTeasers from "@/components/home/BlogTeasers";
 import { HeroBanner } from "@/components/shopify/HeroBanner";
 import Image from "next/image";
-import SubscribeForm from "@/components/home/SubscribeForm";
 
 // Featured products moved to components/home/FeaturedProducts
 
@@ -133,38 +132,6 @@ export default function Home() {
 
       {/* Blog Section */}
       <BlogTeasers />
-
-
-       {/* Testimonial Banner */}
-       <section className="relative h-[60vh] min-h-[420px] w-full">
-        <Image
-          src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-          alt="Mountains background"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="max-w-6xl px-6 text-center text-white">
-            <p className="text-2xl sm:text-3xl lg:text-[28px] leading-relaxed">
-              “ Thank you sooo much for these incredible photos. Wow, we are absolutely blown away.
-              We are more than happy to share any positive reviews about our experience working with you because you were absolutely wonderful
-              and made the painful process of getting photos SO easy for us all. We cannot express our gratitude enough. So so thankful for your hard work! ”
-            </p>
-            <p className="mt-6 text-white/80">— Kayla & Zach</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Subscribe Section */}
-      <Section className="bg-[#6d7e76]">
-        <div className="text-center text-white mb-8">
-          <h2 className="text-3xl sm:text-4xl font-semibold mb-2">Subscribe</h2>
-          <p className="text-sm sm:text-base text-white/80">Sign up with your email address to receive news and updates.</p>
-        </div>
-        <SubscribeForm />
-      </Section>
     </div>
   );
 }

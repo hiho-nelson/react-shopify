@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { LoadingSection } from '@/components/ui/loading';
 import { Section } from '@/components/layout/Section';
 import { getBlogArticles } from '@/lib/shopify/actions';
+import Link from 'next/link';
 
 const BLOG_HANDLE = 'news';
 const BLOG_FIRST = 3;
@@ -34,6 +35,9 @@ async function BlogTeasersContent() {
             </div>
           </article>
         ))}
+      </div>
+      <div className="flex justify-end mt-8 lg:mt-12">
+        <Link href="/blog" className="text-lg sm:text-xl lg:text-2xl font-thin hover:text-gray-300 transition-colors duration-200 border-b border-black hover:border-gray-300 pb-1">View All Blog Posts</Link>
       </div>
     </Section>
   );

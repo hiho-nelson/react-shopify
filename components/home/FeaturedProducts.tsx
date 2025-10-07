@@ -11,7 +11,7 @@ async function FeaturedProductsContent() {
     <Section className="bg-[#d4d4d44d]">
       <ProductGrid products={products} />
       <div className="flex justify-end mt-8 lg:mt-12">
-        <Link href="/products" className="text-lg sm:text-xl lg:text-2xl font-thin text-white hover:text-gray-300 transition-colors duration-200 border-b border-white hover:border-gray-300 pb-1">View All Products</Link>
+        <Link href="/products" className="text-lg sm:text-xl lg:text-2xl font-thin hover:text-gray-300 transition-colors duration-200 border-b border-black hover:border-gray-300 pb-1">View All Products</Link>
       </div>
     </Section>
   );

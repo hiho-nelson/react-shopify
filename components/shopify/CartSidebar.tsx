@@ -42,7 +42,7 @@ export function CartSidebar() {
       />
       
       {/* 侧边栏 */}
-      <div className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50 flex flex-col transform transition-transform duration-300 ease-out ${entered ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-xl z-50 flex flex-col transform transition-transform duration-300 ease-out ${entered ? 'translate-x-0' : 'translate-x-full'}`}>
         {/* 头部 */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -104,7 +104,7 @@ export function CartSidebar() {
                       {line.merchandise.title}
                     </p>
                     <p className="text-sm font-medium mt-1">
-                      {line.cost.totalAmount.currencyCode} {parseFloat(line.cost.totalAmount.amount).toFixed(2)}
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: line.cost.totalAmount.currencyCode, currencyDisplay: 'narrowSymbol', minimumFractionDigits: 2 }).format(parseFloat(line.cost.totalAmount.amount))}
                     </p>
                   </div>
 
@@ -154,14 +154,14 @@ export function CartSidebar() {
             <div className="flex justify-between text-lg font-semibold">
               <span>Total</span>
               <span>
-                {cart.cost.totalAmount.currencyCode} {parseFloat(cart.cost.totalAmount.amount).toFixed(2)}
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: cart.cost.totalAmount.currencyCode, currencyDisplay: 'narrowSymbol', minimumFractionDigits: 2 }).format(parseFloat(cart.cost.totalAmount.amount))}
               </span>
             </div>
 
             {/* 按钮 */}
             <div className="space-y-2">
               <Button 
-                className="w-full" 
+                className="w-full rounded-none h-12" 
                 disabled={!cart?.checkoutUrl}
                 onClick={() => {
                   if (!cart?.checkoutUrl) return;
@@ -171,7 +171,7 @@ export function CartSidebar() {
               >
                 Checkout
               </Button>
-              <Button 
+              {/* <Button 
                 variant="outline" 
                 className="w-full"
                 onClick={() => {
@@ -180,7 +180,7 @@ export function CartSidebar() {
                 }}
               >
                 View Cart
-              </Button>
+              </Button> */}
             </div>
           </div>
         )}

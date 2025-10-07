@@ -23,7 +23,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
 
   if (!images || images.length === 0) {
     return (
-      <div className="aspect-square w-full rounded-lg bg-gray-200 flex items-center justify-center">
+      <div className="aspect-square w-full bg-gray-200 flex items-center justify-center">
         <span className="text-gray-400">No Image</span>
       </div>
     );
@@ -31,7 +31,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
 
   return (
     <div className="w-full">
-      <div className="relative aspect-square overflow-hidden rounded-lg">
+      <div className="relative overflow-hidden aspect-video md:aspect-[4/3]">
         <Gallery withCaption>
           <Swiper
             modules={[Thumbs, FreeMode, Navigation, Zoom]}
@@ -94,7 +94,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
           >
             {images.map((image) => (
               <SwiperSlide key={`thumb-${image.id}`}>
-                <div className="relative aspect-square overflow-hidden rounded-md border border-gray-200">
+                <div className="relative aspect-square overflow-hidden border border-gray-200">
                   <Image
                     src={image.url}
                     alt={image.altText || 'Product thumbnail'}

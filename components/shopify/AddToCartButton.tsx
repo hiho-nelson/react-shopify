@@ -73,7 +73,7 @@ export function AddToCartButton({
       disabled={isAdding}
       className={className}
     >
-      {isAdding ? 'Adding...' : 'Add to Cart'}
+      {isAdding ? 'Adding...' : 'Buy Now'}
     </Button>
   );
 }

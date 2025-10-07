@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/stores/cartStore';
 import { ShoppingBag, Menu, X, User } from 'lucide-react';
 import { useCollections } from '@/hooks/useCollections';
@@ -85,13 +84,15 @@ export function Header() {
     return () => clearTimeout(t2);
   }, [megaOpen]);
 
+  const solid = !isHome || scrolled;
+
   return (
-    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out ${scrolled ? 'bg-white shadow-sm border-b' : 'bg-transparent border-none shadow-none'}`}>
-      <div className="flex justify-center px-12">
-        <div className="w-full flex justify-between items-center h-36">
+    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out ${solid ? 'bg-white shadow-sm border-b' : 'bg-transparent border-none shadow-none'}`}>
+      <div className="flex justify-center px-4 sm:px-12">
+        <div className={`w-full flex justify-between items-center ${solid ? 'h-20' : 'h-36'} transition-[height] duration-300`}>
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className={`text-2xl font-bold transition-colors duration-300 ease-in-out ${scrolled ? 'text-gray-900' : 'text-white'}`}>Shopify Store</span>
+            <span className={`text-2xl font-bold transition-colors duration-300 ease-in-out ${solid ? 'text-gray-900' : 'text-white'}`}>Shopify Store</span>
           </Link>
 
           {/* Right: menu + account/cart */}
@@ -100,13 +101,13 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-2 relative">
             <Link 
               href="#" 
-              className={`${scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">About Me</span>
             </Link>
             <button
               type="button"
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out ${scrolled ? (megaOpen ? 'text-gray-900' : 'text-gray-700 hover:text-gray-900') : (megaOpen ? 'text-white' : 'text-white/90 hover:text-white')}`}
+              className={`px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out ${solid ? (megaOpen ? 'text-gray-900' : 'text-gray-700 hover:text-gray-900') : (megaOpen ? 'text-white' : 'text-white/90 hover:text-white')}`}
               onMouseEnter={openMega}
               onFocus={openMega}
               onMouseLeave={closeMega}
@@ -117,21 +118,21 @@ export function Header() {
             </button>
             <Link 
               href="#" 
-              className={`${scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Process</span>
             </Link>
             <Link 
               href="#" 
-              className={`${scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Blog</span>
             </Link>
             <Link 
               href="#" 
-              className={`${scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
             >
-              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Contact Me</span>
+              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200 border px-7 py-3">Contact Me</span>
             </Link>
 
             {/* Mega panel */}
@@ -142,8 +143,8 @@ export function Header() {
                 onMouseLeave={closeMega}
               >
                 <div className="flex justify-center px-12">
-                  <div className={`w-full bg-white border-t border-b rounded-lg shadow-lg py-6 transform transition-transform duration-200 ${megaEntered ? 'translate-y-0' : 'translate-y-2'}`}>
-                    <div className="px-6">
+                  <div className={`w-full bg-white border-t border-b shadow-lg py-12 transform transition-transform duration-200 ${megaEntered ? 'translate-y-0' : 'translate-y-2'}`}>
+                    <div className="px-12">
                       <div className="w-full grid grid-cols-4">
                         {/* Column 1 - NATURE */}
                         <div className="pr-6 border-r border-gray-200">
@@ -198,7 +199,7 @@ export function Header() {
             {/* Mobile hamburger */}
             <button
               type="button"
-              className={`md:hidden h-9 w-9 grid place-items-center rounded transition-colors duration-300 ease-in-out ${scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
+              className={`md:hidden h-9 w-9 grid place-items-center rounded transition-colors duration-300 ease-in-out ${solid ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
               aria-label="Toggle menu"
               onClick={() => setMobileOpen((v) => !v)}
             >
@@ -207,11 +208,11 @@ export function Header() {
             <button 
               onClick={toggleCart}
               aria-label="Open cart"
-              className={`relative h-9 w-9 flex items-center justify-center rounded-md transition-colors duration-300 ease-in-out ${scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
+              className={`relative h-9 w-9 flex items-center justify-center rounded-md transition-colors duration-300 ease-in-out ${solid ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
             >
               <ShoppingBag className="h-5 w-5" />
               {(cart?.totalQuantity || 0) > 0 && (
-                <span className={`absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full text-[10px] font-medium ${scrolled ? 'bg-black text-white' : 'bg-white text-black'} h-4 min-w-4 px-1`}>
+                <span className={`absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full text-[10px] font-medium ${solid ? 'bg-black text-white' : 'bg-white text-black'} h-4 min-w-4 px-1`}>
                   {cart?.totalQuantity}
                 </span>
               )}
@@ -219,7 +220,7 @@ export function Header() {
             <Link
               href={customerEmail ? '/account' : '/account/login'}
               aria-label={customerEmail ? 'Account' : 'Sign in'}
-              className={`h-9 w-9 flex items-center justify-center rounded-md transition-colors duration-300 ease-in-out ${scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
+              className={`h-9 w-9 flex items-center justify-center rounded-md transition-colors duration-300 ease-in-out ${solid ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
             >
               <User className="h-5 w-5" />
             </Link>
