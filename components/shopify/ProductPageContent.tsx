@@ -142,11 +142,13 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
                 </div>
               )}
 
-              <div className="text-2xl md:text-2xl font-thin text-gray-900 mt-3 md:mt-4">
-                {minPrice !== maxPrice
-                  ? `${formatMoney.format(minPrice)} – ${formatMoney.format(maxPrice)}`
-                  : `${formatMoney.format(minPrice)}`}
-              </div>
+              {hasVariantOptions && (
+                <div className="text-2xl md:text-2xl font-thin text-gray-900 mt-3 md:mt-4">
+                  {minPrice !== maxPrice
+                    ? `${formatMoney.format(minPrice)} – ${formatMoney.format(maxPrice)}`
+                    : `${formatMoney.format(minPrice)}`}
+                </div>
+              )}
             </div>
 
             {/* 变体选择（下拉） */}
@@ -228,8 +230,8 @@ export function ProductPageContent({ product }: ProductPageContentProps) {
               </div>
             </div>
 
-            {/* Add to Cart 按钮 */}
-            <div className="space-y-4 md:space-y-5 pt-2 md:pt-4">
+            {/* Buy Now 和 Enquiry 按钮 */}
+            <div className="space-y-4 md:space-y-3 pt-2 md:pt-4">
               <div className="w-full md:w-1/2">
                 <AddToCartButton
                   product={product}
