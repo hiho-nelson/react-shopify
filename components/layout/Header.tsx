@@ -132,13 +132,13 @@ export function Header() {
               href="#" 
               className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
             >
-              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200 border px-7 py-3">Contact Me</span>
+              <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200 border px-7 py-2" style={{borderColor: solid ? '#6b7280' : 'white'}}>Contact Me</span>
             </Link>
 
             {/* Mega panel */}
             {megaVisible && (
               <div
-                className={`fixed left-0 right-0 top-36 z-40 transition-opacity duration-200 ${megaEntered ? 'opacity-100' : 'opacity-0'}`}
+                className={`fixed left-0 right-0 ${solid ? 'top-20' : 'top-36'} z-40 transition-opacity duration-200 ${megaEntered ? 'opacity-100' : 'opacity-0'}`}
                 onMouseEnter={openMega}
                 onMouseLeave={closeMega}
               >
