@@ -11,38 +11,20 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     if (typeof window === "undefined") return;
 
     lenisRef.current = new Lenis({
-      duration: 1.0, // Slightly faster for better responsiveness
-      easing: (t) => 1 - Math.pow(1 - t, 3), // Cubic ease-out for smoother feel
-      direction: "vertical",
-      gestureDirection: "vertical",
-      smooth: true,
-      mouseMultiplier: 0.8, // Reduced for better control
-      smoothTouch: false, // Disabled for better mobile performance
-      touchMultiplier: 1.5, // Reduced for better mobile performance
+      duration: 1.0,
+      easing: (t) => 1 - Math.pow(1 - t, 3),
+      smoothWheel: true,
+      touchMultiplier: 1.5,
       infinite: false,
-      // Performance optimizations
-      normalizeWheel: true,
       wheelMultiplier: 1,
-      // Disable on low-end devices
-      autoRaf: true,
-      rafPriority: 0,
     });
 
-    // Optimized RAF loop with performance checks
-    let rafId: number;
-    let lastTime = 0;
-    const targetFPS = 60;
-    const frameInterval = 1000 / targetFPS;
-
-    function raf(time: number) {
-      if (time - lastTime >= frameInterval) {
-        lenisRef.current?.raf(time);
-        lastTime = time;
-      }
-      rafId = requestAnimationFrame(raf);
-    }
-
-    rafId = requestAnimationFrame(raf);
+    // Use Lenis's built-in RAF handling for better performance
+    const raf = (time: number) => {
+      lenisRef.current?.raf(time);
+      requestAnimationFrame(raf);
+    };
+    requestAnimationFrame(raf);
 
     // Pause on visibility change for better performance
     const handleVisibilityChange = () => {
@@ -63,9 +45,6 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     window.addEventListener("focus", handleFocus);
 
     return () => {
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
       lenisRef.current?.destroy();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleBlur);
