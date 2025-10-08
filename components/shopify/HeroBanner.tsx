@@ -64,6 +64,8 @@ export function HeroBanner({ slides, className = '', height = 'default' }: HeroB
                 priority
                 sizes="100vw"
               />
+              {/* Gradient overlay for better text readability - only covers header area */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-transparent" style={{background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 20%, rgba(0,0,0,0.05) 40%, transparent 100%)'}}></div>
             </div>
           </SwiperSlide>
         ))}
