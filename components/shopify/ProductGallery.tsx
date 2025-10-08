@@ -6,8 +6,6 @@ import type { ShopifyImage } from '@/lib/shopify/types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Thumbs, FreeMode, Navigation, Zoom } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper/types';
-import { Gallery, Item } from 'react-photoswipe-gallery';
-import 'photoswipe/style.css';
 
 import 'swiper/css';
 import 'swiper/css/free-mode';
@@ -32,55 +30,35 @@ export function ProductGallery({ images }: ProductGalleryProps) {
   return (
     <div className="w-full">
       <div className="relative overflow-hidden aspect-video md:aspect-[4/3]">
-        <Gallery withCaption>
-          <Swiper
-            modules={[Thumbs, FreeMode, Navigation, Zoom]}
-            navigation
-            zoom
-            spaceBetween={10}
-            thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-            className="h-full"
-            style={{
-              // @ts-expect-error: CSS custom properties for Swiper
-              '--swiper-navigation-color': '#ffffff',
-              '--swiper-navigation-size': '20px'
-            }}
-          >
-            {images.map((image) => (
-              <SwiperSlide key={image.id}>
-                <Item
-                  original={image.url}
-                  thumbnail={image.url}
-                  width={image.width}
-                  height={image.height}
-                  caption={image.altText || 'Product image'}
-                >
-                  {({ ref, open }) => (
-                    <button
-                      ref={(el) => {
-                        // forward button element to photoswipe ref (expects HTMLElement | null)
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        (ref as any)(el);
-                      }}
-                      onClick={open}
-                      className="relative block w-full h-full"
-                    >
-                      <Image
-                        src={image.url}
-                        alt={image.altText || 'Product image'}
-                        fill
-                        className="object-cover transition-opacity duration-500 ease-in-out"
-                        priority
-                        placeholder="blur"
-                        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                      />
-                    </button>
-                  )}
-                </Item>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </Gallery>
+        <Swiper
+          modules={[Thumbs, FreeMode, Navigation, Zoom]}
+          navigation
+          zoom
+          spaceBetween={10}
+          thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+          className="h-full"
+          style={{
+            // @ts-expect-error: CSS custom properties for Swiper
+            '--swiper-navigation-color': '#ffffff',
+            '--swiper-navigation-size': '20px'
+          }}
+        >
+          {images.map((image) => (
+            <SwiperSlide key={image.id}>
+              <div className="relative block w-full h-full">
+                <Image
+                  src={image.url}
+                  alt={image.altText || 'Product image'}
+                  fill
+                  className="object-cover transition-opacity duration-500 ease-in-out"
+                  priority
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
 
       {images.length > 1 && (

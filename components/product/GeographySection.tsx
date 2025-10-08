@@ -16,7 +16,7 @@ export function GeographySection({ product }: GeographySectionProps) {
         {/* Left text */}
         <div>
           <h3 className="text-4xl md:text-6xl font-thin text-gray-900 mb-12">
-            Geography
+            Capture Notes
           </h3>
           <div className="text-neutral-700 leading-relaxed text-[16px]">
             {product.metafields?.capture_notes?.value && (

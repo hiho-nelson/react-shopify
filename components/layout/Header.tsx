@@ -7,14 +7,18 @@ import { ShoppingBag, Menu, X, User, Search } from 'lucide-react';
 import { useCollections } from '@/hooks/useCollections';
 import { usePathname } from 'next/navigation';
 import { SearchModal } from '@/components/shopify/SearchModal';
+import { useLenis } from '@/hooks/useLenis';
 
 export function Header() {
   const { cart, toggleCart } = useCartStore();
   const [customerEmail, setCustomerEmail] = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const { scrollY } = useLenis();
+  
+  // Use Lenis scroll position instead of window.scrollY
+  const scrolled = scrollY >= 300;
 
   useEffect(() => {
     let ignore = false;
@@ -30,16 +34,7 @@ export function Header() {
     return () => { ignore = true; };
   }, []);
 
-  // 滚动监听器
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setScrolled(scrollTop >= 300);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Scroll state is now handled by useLenis hook
 
   // sign out handled within account area; no direct sign out button in header
 

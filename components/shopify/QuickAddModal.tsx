@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import type { ShopifyProduct, ShopifyVariant } from '@/lib/shopify/types';
 import { useCartStore } from '@/stores/cartStore';
+import { useProductPrice } from '@/hooks/useProductPrice';
 import { X } from 'lucide-react';
 
 interface QuickAddModalProps {
@@ -13,7 +14,8 @@ interface QuickAddModalProps {
 }
 
 export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
-  const { addItem, openCart, loading } = useCartStore();
+  const { addItem, loading } = useCartStore();
+  const { minPrice, maxPrice, formatMoney } = useProductPrice(product);
 
   const [visible, setVisible] = useState(false);
   const [entered, setEntered] = useState(false);
@@ -73,14 +75,13 @@ export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
   if (!visible) return null;
 
   const image = product.images[0];
-  const displayPrice = selectedVariant ? selectedVariant.price : product.price;
 
-  const handleAdd = async () => {
+  const handleBuyNow = async () => {
     const variantId = selectedVariant?.id || product.variants[0]?.id;
     if (!variantId) return;
     await addItem({ variantId, quantity, merchandise: { id: variantId, title: selectedVariant?.title || product.title, product } });
-    openCart();
-    onClose();
+    // Redirect to checkout instead of opening cart
+    window.location.href = '/checkout';
   };
 
   return (
@@ -90,74 +91,139 @@ export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
         onClick={onClose}
       >
         <div 
-          className={`w-full max-w-xl bg-white shadow-xl overflow-hidden transform transition-transform duration-200 ${entered ? 'scale-100' : 'scale-95'}`}
+          className={`w-full max-w-4xl bg-white shadow-xl overflow-hidden transform transition-transform duration-200 ${entered ? 'scale-100' : 'scale-95'}`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between p-4 border-b">
-            <h3 className="text-lg font-semibold">{product.title}</h3>
-            <button className="h-8 w-8 grid place-items-center hover:bg-gray-100" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="sm:col-span-1">
-              <div className="relative aspect-square overflow-hidden bg-gray-100">
-                {image && (
-                  <Image 
-                    src={image.url} 
-                    alt={image.altText || product.title} 
-                    fill 
-                    className="object-cover transition-opacity duration-300" 
-                    sizes="200px"
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                    priority={false}
-                  />
-                )}
-              </div>
-              <div className="mt-3 text-xl font-bold">
-                {displayPrice.currencyCode} {parseFloat(displayPrice.amount).toFixed(2)}
-              </div>
+          <div className="flex min-h-[500px] max-h-[80vh]">
+            {/* Left Side - Product Image */}
+            <div className="w-1/2 bg-gray-50 relative overflow-hidden">
+              {image && (
+                <Image 
+                  src={image.url} 
+                  alt={image.altText || product.title} 
+                  fill 
+                  className="object-cover transition-opacity duration-300" 
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                  priority={false}
+                />
+              )}
             </div>
-            <div className="sm:col-span-2 space-y-4">
+
+            {/* Right Side - Product Information */}
+            <div className="w-1/2 bg-white p-8 flex flex-col">
+              {/* Close Button */}
+              <div className="flex justify-end mb-6">
+                <button 
+                  className="h-8 w-8 grid place-items-center hover:bg-gray-100 rounded-full transition-colors" 
+                  onClick={onClose}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Product Title */}
+              <h2 className="text-4xl font-thin text-gray-900 mb-4 leading-tight">
+                {product.title}
+              </h2>
+
+              {/* Price */}
+              <div className="mb-4">
+                <div className=" font-bold text-gray-600">
+                  {minPrice !== maxPrice
+                    ? `${formatMoney.format(minPrice)} – ${formatMoney.format(maxPrice)}`
+                    : formatMoney.format(minPrice)}
+                </div>
+                <div className="text-sm text-gray-500 mt-1">Incl. GST</div>
+              </div>
+
+              {/* Product Description */}
+              {product.description && (
+                <div className="mb-4">
+                  <p className="text-gray-700 text-sm leading-relaxed line-clamp-2">
+                    {product.description.replace(/<[^>]*>/g, '')}
+                  </p>
+                </div>
+              )}
+
+              {/* Variant Options */}
               {hasVariantOptions && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="mb-4 space-y-3">
                   {optionNames.map((name) => {
                     const values = optionValuesByName.get(name) || [];
                     return (
-                      <div key={name} className="flex flex-col">
-                        <label className="mb-1 text-sm text-gray-700">{name}</label>
-                        <select
-                          className="h-10 border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          value={selectedOptions[name] || values[0] || ''}
-                          onChange={(e) => setSelectedOptions((prev) => ({ ...prev, [name]: e.target.value }))}
-                        >
-                          {values.map((v) => (
-                            <option key={v} value={v}>{v}</option>
-                          ))}
-                        </select>
+                      <div key={name}>
+                        <div className="relative">
+                          <select
+                            className="w-full h-10 border border-gray-300 px-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors appearance-none"
+                            value={selectedOptions[name] || values[0] || ''}
+                            onChange={(e) => setSelectedOptions((prev) => ({ ...prev, [name]: e.target.value }))}
+                          >
+                            {values.map((v) => (
+                              <option key={v} value={v}>{v}</option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
               )}
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Quantity</label>
-                <div className="flex items-center gap-2">
-                  <button className="h-8 w-8 border" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
-                  <span className="w-10 text-center">{quantity}</span>
-                  <button className="h-8 w-8 border" onClick={() => setQuantity(quantity + 1)}>+</button>
+
+              {/* Quantity Selector */}
+              <div className="mb-4">
+                <div className="flex items-center gap-3">
+                  <button 
+                    className="h-10 w-10 flex items-center justify-center bg-gray-50 transition-colors" 
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  >
+                    -
+                  </button>
+                  <span className="w-12 text-center text-lg font-medium">{quantity}</span>
+                  <button 
+                    className="h-10 w-10 flex items-center justify-center bg-gray-50 transition-colors" 
+                    onClick={() => setQuantity(quantity + 1)}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
-              <button
-                className="w-full h-10 bg-black text-white disabled:opacity-50"
-                disabled={!selectedVariant?.availableForSale || loading}
-                onClick={handleAdd}
-              >
-                Add to Cart
-              </button>
-              <div className="text-sm text-gray-500">
-                {selectedVariant?.availableForSale ? 'In Stock' : 'Out of Stock'}
+
+              {/* Selected Variant Price */}
+              {selectedVariant && (
+                <div className="mb-4">
+                  <div className="text-2xl font-semibold text-gray-900">
+                    {formatMoney.format(parseFloat(selectedVariant.price.amount))}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Button */}
+              <div className="mt-6">
+                <button
+                  className="w-full h-14 bg-black text-white font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  disabled={!selectedVariant?.availableForSale || loading}
+                  onClick={handleBuyNow}
+                >
+                  {loading ? 'Processing...' : 'Buy Now'}
+                </button>
+                
+                {/* Product Page Link */}
+                <div className="mt-4">
+                  <a
+                    href={`/products/${product.handle}`}
+                    className="text-sm text-gray-600 hover:text-gray-900 underline transition-colors"
+                    onClick={onClose}
+                  >
+                    View Full Product Details
+                  </a>
+                </div>
               </div>
             </div>
           </div>

@@ -49,21 +49,20 @@ export function ProductActionButtons({
             Enquiry
           </Link>
         </div>
-        <div className="w-full justify-between lg:justify-start flex gap-10">
+        <div className="w-full justify-between lg:justify-start flex gap-10 mt-10">
           <button
             type="button"
             onClick={() => scrollToSection("full-image")}
-            className="block h-14 text-center text-lg rounded-none font-extralight text-black hover:text-[#a1a1a1] transition-colors cursor-pointer"
+            className="block h-fit text-center text-lg rounded-none font-extralight text-black hover:text-[#a1a1a1] transition-colors cursor-pointer"
           >
             See full image &gt;
           </button>
-          <button
-            type="button"
-            onClick={() => scrollToSection("full-image")}
-            className="block h-14 text-center text-lg rounded-none font-extralight text-black hover:text-[#a1a1a1] transition-colors cursor-pointer"
+          <Link
+            href="/delivery"
+            className="block h-fit text-center text-lg rounded-none font-extralight text-black hover:text-[#a1a1a1] transition-colors cursor-pointer"
           >
-            See finish options &gt;
-          </button>
+            Delivery &gt;
+          </Link>
         </div>
       </div>
     </div>
