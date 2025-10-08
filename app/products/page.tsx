@@ -5,9 +5,23 @@ import { Suspense } from 'react';
 
 function ProductsContent({ searchParams }: { searchParams: { search?: string } }) {
   return (
-    <Suspense fallback={<LoadingPage message="Loading products..." />}>
+    <Suspense fallback={<ProductsLoadingSkeleton />}>
       <ProductsList searchParams={searchParams} />
     </Suspense>
+  );
+}
+
+function ProductsLoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto px-4 lg:px-12 py-8 mt-28">
+        <div className="mb-8">
+          <div className="h-8 bg-gray-200 rounded animate-pulse w-48 mb-4" />
+          <div className="h-4 bg-gray-200 rounded animate-pulse w-96" />
+        </div>
+        <ProductGrid products={[]} isLoading={true} />
+      </div>
+    </div>
   );
 }
 

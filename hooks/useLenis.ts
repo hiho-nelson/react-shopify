@@ -1,38 +1,50 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Lenis from 'lenis';
 
 export function useLenis() {
   const [lenis, setLenis] = useState<Lenis | null>(null);
   const [scrollY, setScrollY] = useState(0);
   const lenisRef = useRef<Lenis | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  // Throttled scroll handler to improve performance
+  const handleScroll = useCallback(({ scroll }: { scroll: number }) => {
+    setScrollY(scroll);
+  }, []);
 
   useEffect(() => {
-    // Only initialize on client side
+    // Only initialize on client side and not on auth pages
     if (typeof window === "undefined") return;
+    
+    // Skip Lenis on auth pages for better performance
+    if (window.location.pathname.startsWith('/account/')) return;
 
     const lenisInstance = new Lenis({
-      duration: 1.0,
+      duration: 1.2, // Slightly longer duration for smoother feel
       easing: (t) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
       touchMultiplier: 1.5,
       infinite: false,
       wheelMultiplier: 1,
+      // Performance optimizations
+      lerp: 0.1,
+      syncTouch: true,
     });
 
     lenisRef.current = lenisInstance;
     setLenis(lenisInstance);
 
-    // Listen to Lenis scroll events
-    lenisInstance.on('scroll', ({ scroll }) => {
-      setScrollY(scroll);
-    });
+    // Listen to Lenis scroll events with throttling
+    lenisInstance.on('scroll', handleScroll);
 
-    // Use Lenis's built-in RAF handling for better performance
+    // Optimized RAF loop with error handling
     const raf = (time: number) => {
-      lenisInstance.raf(time);
-      requestAnimationFrame(raf);
+      if (lenisInstance) {
+        lenisInstance.raf(time);
+        rafRef.current = requestAnimationFrame(raf);
+      }
     };
-    requestAnimationFrame(raf);
+    rafRef.current = requestAnimationFrame(raf);
 
     // Pause on visibility change for better performance
     const handleVisibilityChange = () => {
@@ -53,12 +65,15 @@ export function useLenis() {
     window.addEventListener("focus", handleFocus);
 
     return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
       lenisInstance.destroy();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [handleScroll]);
 
   return { lenis, scrollY };
 }

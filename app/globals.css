@@ -146,4 +146,45 @@
   .scroll-optimized {
     contain: layout style paint;
   }
+  
+  /* Prevent layout shift for product cards */
+  .product-card {
+    contain: layout style paint;
+  }
+  
+  /* Ensure consistent header height to prevent layout shift */
+  .header-container {
+    min-height: 5rem; /* 80px - matches h-20 */
+  }
+  
+  /* Optimize image loading to prevent layout shift */
+  .product-image {
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+  
+  /* Ensure grid items maintain consistent dimensions */
+  .product-grid {
+    contain: layout;
+  }
+  
+  /* Optimize auth pages for better INP */
+  .auth-page {
+    contain: layout style paint;
+  }
+  
+  .auth-form {
+    will-change: auto;
+    contain: layout;
+  }
+  
+  .auth-input {
+    will-change: auto;
+    contain: layout;
+  }
+  
+  /* Reduce paint complexity for auth pages */
+  .auth-page * {
+    backface-visibility: hidden;
+  }
 }
