@@ -187,4 +187,23 @@
   .auth-page * {
     backface-visibility: hidden;
   }
+  
+  /* Fix paragraph spacing in capture notes */
+  .capture-notes-prose p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .capture-notes-prose p:first-child {
+    margin-top: 0;
+  }
+  
+  .capture-notes-prose p:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Ensure proper spacing for rich text content */
+  .capture-notes-prose > * + * {
+    margin-top: 1rem;
+  }
 }

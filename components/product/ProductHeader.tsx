@@ -20,6 +20,7 @@ export function ProductHeader({
       <h1 className="text-3xl md:text-6xl font-thin capitalize text-gray-900 mb-3 md:mb-4">
         {product.title}
       </h1>
+      <p className="text-sm md:text-base text-gray-500">Limited Edition Print -1/25 units</p>
 
       {product.description && (
         <div>

@@ -21,7 +21,7 @@ export function GeographySection({ product }: GeographySectionProps) {
           <div className="text-neutral-700 leading-relaxed text-[16px]">
             {product.metafields?.capture_notes?.value && (
               <div className="mt-4">
-                <div className="prose prose-sm md:prose-base text-gray-600 max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-strong:text-gray-900 prose-em:text-gray-700 prose-ul:text-gray-600 prose-ol:text-gray-600 prose-li:text-gray-600">
+                <div className="prose prose-sm md:prose-base text-gray-600 max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-strong:text-gray-900 prose-em:text-gray-700 prose-ul:text-gray-600 prose-ol:text-gray-600 prose-li:text-gray-600 capture-notes-prose">
                   <RichText data={product.metafields.capture_notes.value} />
                 </div>
               </div>

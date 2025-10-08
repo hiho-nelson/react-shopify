@@ -1,4 +1,4 @@
-import { ProductCard } from './ProductCard';
+import { ProductCardWithModal } from './ProductCard';
 import type { ShopifyProduct } from '@/lib/shopify/types';
 
 interface ProductGridProps {
@@ -62,7 +62,7 @@ export function ProductGrid({
   return (
     <div className={`${getGridClasses()} product-grid`}>
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCardWithModal key={product.id} product={product} />
       ))}
     </div>
   );
