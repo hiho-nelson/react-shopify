@@ -94,7 +94,7 @@ export function Header() {
         <div className={`w-full flex justify-between items-center ${solid ? 'h-20' : 'h-36'} transition-[height] duration-300`}>
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className={`text-2xl font-bold transition-colors duration-300 ease-in-out ${solid ? 'text-gray-900' : 'text-white'}`}>Shopify Store</span>
+            <span className={`text-2xl font-bold transition-colors duration-300 ease-in-out ${solid ? 'text-gray-900' : 'text-white'}`}>Christopher Photos</span>
           </Link>
 
           {/* Right: menu + account/cart */}

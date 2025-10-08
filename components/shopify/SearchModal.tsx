@@ -15,13 +15,19 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [results, setResults] = useState<ShopifyProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
 
-  // Focus input when modal opens
+  // Focus input when modal opens and handle animations
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
+    if (isOpen) {
+      setIsVisible(true);
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    } else {
+      setIsVisible(false);
     }
   }, [isOpen]);
 
@@ -85,10 +91,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, [isOpen, onClose]);
 
   const handleClose = () => {
-    setQuery('');
-    setResults([]);
-    setShowSuggestions(false);
-    onClose();
+    setIsVisible(false);
+    // Delay the actual close to allow animation to complete
+    setTimeout(() => {
+      setQuery('');
+      setResults([]);
+      setShowSuggestions(false);
+      onClose();
+    }, 200);
   };
 
   const handleResultClick = () => {
@@ -105,15 +115,19 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
+    <div className={`fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/50"
+        style={{
+          backdropFilter: isVisible ? 'blur(5px)' : 'blur(0px)',
+          transition: 'backdrop-filter 500ms ease-out'
+        }}
         onClick={handleClose}
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-2xl bg-white shadow-xl">
+      <div className={`relative w-full max-w-2xl bg-white shadow-xl transition-all duration-300 ease-out transform ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b">
           <Search className="h-5 w-5 text-gray-400" />

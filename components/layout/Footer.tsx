@@ -40,7 +40,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-2xl font-bold mb-8">Shopify Store</h3>
+            <h3 className="text-2xl font-bold mb-8">Christopher Photos</h3>
             <p className="text-gray-300 mb-4 max-w-md">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus illo quo ab quisquam hic. Exercitationem numquam modi voluptas! Molestiae reiciendis impedit commodi, fugit ex odit? Aperiam sint delectus consectetur corporis.
             </p>
@@ -160,7 +160,7 @@ export function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400">
-            © {new Date().getFullYear()} Shopify Store. All rights reserved.
+            © {new Date().getFullYear()} Christopher Photos. All rights reserved.
           </p>
         </div>
       </div>

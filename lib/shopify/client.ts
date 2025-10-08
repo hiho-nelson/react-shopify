@@ -169,6 +169,7 @@ class ShopifyClient {
     return data.product ? this.transformProduct(data.product) : null;
   }
 
+
   // 搜索产品
   async searchProducts(query: string, first: number = 10) {
     const data = await this.graphqlRequest(SHOPIFY_QUERIES.SEARCH_PRODUCTS, {
@@ -218,6 +219,27 @@ class ShopifyClient {
 
   // 转换产品数据格式
   private transformProduct(product: any): ShopifyProduct {
+    // 处理 metafields
+    const metafields: any = {};
+    if (product.metafield?.value) {
+      metafields.capture_notes = {
+        value: product.metafield.value,
+        type: product.metafield.type,
+        namespace: product.metafield.namespace,
+        key: product.metafield.key
+      };
+    }
+    if (product.geographyMap?.reference?.image?.url) {
+      metafields.custom = {
+        geography_map: {
+          value: product.geographyMap.reference.image.url,
+          type: product.geographyMap.type,
+          namespace: product.geographyMap.namespace,
+          key: product.geographyMap.key
+        }
+      };
+    }
+
     return {
       id: product.id,
       title: product.title,
@@ -227,6 +249,7 @@ class ShopifyClient {
       tags: product.tags,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
+      metafields: Object.keys(metafields).length > 0 ? metafields : undefined,
       images: product.images.edges.map((edge: any) => ({
         id: edge.node.id,
         url: edge.node.url,

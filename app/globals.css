@@ -118,4 +118,32 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Smooth scroll performance optimizations */
+  html {
+    scroll-behavior: auto; /* Let Lenis handle smooth scrolling */
+  }
+  
+  /* Optimize for smooth scrolling performance */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* GPU acceleration for better performance */
+  .sticky {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  
+  /* Optimize images for smooth scrolling */
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+  
+  /* Reduce repaints during scroll */
+  .scroll-optimized {
+    contain: layout style paint;
+  }
 }

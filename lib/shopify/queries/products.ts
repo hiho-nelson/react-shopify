@@ -66,6 +66,28 @@ export const GET_PRODUCT_BY_HANDLE = `
       tags
       createdAt
       updatedAt
+      metafield(namespace: "custom", key: "capture_notes") {
+        value
+        type
+        namespace
+        key
+      }
+      geographyMap: metafield(namespace: "custom", key: "geography_map") {
+        value
+        type
+        namespace
+        key
+        reference {
+          ... on MediaImage {
+            image {
+              url
+              altText
+              width
+              height
+            }
+          }
+        }
+      }
       images(first: 10) {
         edges {
           node {

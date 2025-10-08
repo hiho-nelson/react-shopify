@@ -14,6 +14,22 @@ export interface ShopifyProduct {
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  metafields?: {
+    capture_notes?: {
+      value: string;
+      type?: string;
+      namespace?: string;
+      key?: string;
+    };
+    custom?: {
+      geography_map?: {
+        value: string;
+        type?: string;
+        namespace?: string;
+        key?: string;
+      };
+    };
+  };
 }
 
 export interface ShopifyImage {
