@@ -14,7 +14,7 @@ interface QuickAddModalProps {
 }
 
 export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
-  const { addItem, loading } = useCartStore();
+  const { addItem, loading, openCart } = useCartStore();
   const { minPrice, maxPrice, formatMoney } = useProductPrice(product);
 
   const [visible, setVisible] = useState(false);
@@ -79,9 +79,24 @@ export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
   const handleBuyNow = async () => {
     const variantId = selectedVariant?.id || product.variants[0]?.id;
     if (!variantId) return;
-    await addItem({ variantId, quantity, merchandise: { id: variantId, title: selectedVariant?.title || product.title, product } });
-    // Redirect to checkout instead of opening cart
-    window.location.href = '/checkout';
+    
+    try {
+      await addItem({ 
+        variantId, 
+        quantity, 
+        merchandise: { 
+          id: variantId, 
+          title: selectedVariant?.title || product.title, 
+          product 
+        } 
+      });
+      // Open cart sidebar instead of redirecting to checkout
+      openCart();
+      // Close the modal
+      onClose();
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+    }
   };
 
   return (
