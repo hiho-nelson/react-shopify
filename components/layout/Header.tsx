@@ -16,52 +16,58 @@ export function Header() {
   const pathname = usePathname();
   const isHome = pathname === '/';
   
-  // Handle scroll state directly
+  // Robust home header state using IntersectionObserver
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      setScrolled(scrollY >= 300);
-    };
-
-    // For home page, ensure we start with correct state
-    if (isHome) {
-      // Force initial state to false for home page
-      setScrolled(false);
-      
-      // Then check actual scroll position
-      const timer1 = setTimeout(() => {
-        handleScroll();
-      }, 50);
-      
-      const timer2 = setTimeout(() => {
-        handleScroll();
-      }, 200);
-      
-      // Add scroll listener
-      window.addEventListener('scroll', handleScroll, { passive: true });
-
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-        window.removeEventListener('scroll', handleScroll);
-      };
-    } else {
-      // For non-home pages, always show solid state
+    // Non-home routes are always solid
+    if (!isHome) {
       setScrolled(true);
-      return () => {};
+      return;
     }
+
+    // Home route: use an invisible sentinel to detect crossing 300px
+    setScrolled(false);
+
+    let observer: IntersectionObserver | null = null;
+    let sentinel = document.getElementById('header-sentinel');
+
+    if (!sentinel) {
+      sentinel = document.createElement('div');
+      sentinel.id = 'header-sentinel';
+      // Place the sentinel 300px below the top so crossing it toggles state
+      sentinel.style.position = 'absolute';
+      sentinel.style.top = '300px';
+      sentinel.style.left = '0';
+      sentinel.style.width = '1px';
+      sentinel.style.height = '1px';
+      sentinel.style.pointerEvents = 'none';
+      sentinel.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(sentinel);
+    }
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        // When the sentinel is NOT intersecting, we've scrolled past 300px
+        setScrolled(!entry.isIntersecting);
+      },
+      { root: null, threshold: 0 }
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      if (observer) observer.disconnect();
+      // Keep the sentinel in the DOM to reuse across navigations
+    };
   }, [isHome]);
 
-  // Also handle route changes
+  // Route change: ensure we start from correct baseline without forcing scroll
   useEffect(() => {
-    // Force reset to top on route change
-    window.scrollTo(0, 0);
-    
-    // Set correct initial state based on page
-    if (isHome) {
-      setScrolled(false);
-    } else {
+    if (!isHome) {
       setScrolled(true);
+    } else {
+      // On home, baseline is false; IO will update after paint
+      setScrolled(false);
     }
   }, [pathname, isHome]);
 
