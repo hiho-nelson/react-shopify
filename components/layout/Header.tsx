@@ -24,8 +24,11 @@ export function Header() {
       return;
     }
 
-    // Home route: use an invisible sentinel to detect crossing 300px
+    // Home route: force initial state and ensure clean start
     setScrolled(false);
+    
+    // Force scroll to top to ensure clean state
+    window.scrollTo(0, 0);
 
     const initObserver = () => {
       let observer: IntersectionObserver | null = null;
@@ -77,13 +80,23 @@ export function Header() {
     };
   }, [isHome]);
 
-  // Route change: ensure we start from correct baseline without forcing scroll
+  // Route change: ensure we start from correct baseline and force scroll reset
   useEffect(() => {
+    // Force scroll to top on every route change
+    window.scrollTo(0, 0);
+    
     if (!isHome) {
       setScrolled(true);
     } else {
-      // On home, baseline is false; IO will update after paint
+      // On home, force initial state and reset observer
       setScrolled(false);
+      
+      // Force reset the sentinel position and observer state
+      const sentinel = document.getElementById('header-sentinel');
+      if (sentinel) {
+        // Remove and recreate sentinel to reset observer state
+        sentinel.remove();
+      }
     }
   }, [pathname, isHome]);
 
