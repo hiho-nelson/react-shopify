@@ -20,19 +20,41 @@ export function Header() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
+      console.log('Header scroll check:', scrollY, scrollY >= 300); // Debug log
       setScrolled(scrollY >= 300);
     };
 
-    // Set initial state
-    handleScroll();
+    // Set initial state with a small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      handleScroll();
+    }, 100);
 
     // Add scroll listener
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  // Also handle route changes
+  useEffect(() => {
+    // Reset to top on route change
+    window.scrollTo(0, 0);
+    setScrolled(false);
+    
+    const handleRouteChange = () => {
+      const scrollY = window.scrollY;
+      console.log('Route change scroll check:', scrollY, scrollY >= 300); // Debug log
+      setScrolled(scrollY >= 300);
+    };
+
+    // Small delay to ensure scroll position is updated after route change
+    const timer = setTimeout(handleRouteChange, 50);
+    
+    return () => clearTimeout(timer);
+  }, [pathname]);
 
   useEffect(() => {
     let ignore = false;
