@@ -14,6 +14,7 @@ export function Header() {
   const [customerEmail, setCustomerEmail] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [localScrollY, setLocalScrollY] = useState(0);
   const pathname = usePathname();
   const isHome = pathname === '/';
   const { scrollY } = useLenis();
@@ -21,10 +22,21 @@ export function Header() {
   // Initialize client-side state
   useEffect(() => {
     setIsClient(true);
+    if (typeof window !== "undefined") {
+      setLocalScrollY(window.scrollY);
+    }
   }, []);
-  
-  // Use Lenis scroll position instead of window.scrollY
-  const scrolled = isClient && scrollY >= 300;
+
+  // Update local scroll state on route change
+  useEffect(() => {
+    if (isClient && typeof window !== "undefined") {
+      setLocalScrollY(window.scrollY);
+    }
+  }, [pathname, isClient]);
+
+  // Use local scroll position as fallback
+  const currentScrollY = isClient ? (scrollY || localScrollY) : 0;
+  const scrolled = isClient && currentScrollY >= 300;
 
   useEffect(() => {
     let ignore = false;

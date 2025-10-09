@@ -16,13 +16,12 @@ export function useLenis() {
     }
   }, []);
 
-  // Update scroll position on every render when client-side
+  // Update scroll position when client-side
   useEffect(() => {
     if (isClient && typeof window !== "undefined") {
-      const updateScrollY = () => setScrollY(window.scrollY);
-      updateScrollY();
+      setScrollY(window.scrollY);
     }
-  });
+  }, [isClient]);
 
   // Throttled scroll handler to improve performance
   const handleScroll = useCallback(({ scroll }: { scroll: number }) => {
