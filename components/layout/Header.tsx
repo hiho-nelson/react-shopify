@@ -23,42 +23,47 @@ export function Header() {
       setScrolled(scrollY >= 300);
     };
 
-    // Set initial state immediately and with delay
-    handleScroll(); // Immediate check
-    const timer = setTimeout(() => {
-      handleScroll(); // Delayed check for Vercel
-    }, 200);
+    // For home page, ensure we start with correct state
+    if (isHome) {
+      // Force initial state to false for home page
+      setScrolled(false);
+      
+      // Then check actual scroll position
+      const timer1 = setTimeout(() => {
+        handleScroll();
+      }, 50);
+      
+      const timer2 = setTimeout(() => {
+        handleScroll();
+      }, 200);
+      
+      // Add scroll listener
+      window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Add scroll listener
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        window.removeEventListener('scroll', handleScroll);
+      };
+    } else {
+      // For non-home pages, always show solid state
+      setScrolled(true);
+      return () => {};
+    }
+  }, [isHome]);
 
   // Also handle route changes
   useEffect(() => {
-    // Force reset to top and state on route change
+    // Force reset to top on route change
     window.scrollTo(0, 0);
-    setScrolled(false);
     
-    const handleRouteChange = () => {
-      const scrollY = window.scrollY;
-      setScrolled(scrollY >= 300);
-    };
-
-    // Multiple checks to ensure correct state on Vercel
-    handleRouteChange(); // Immediate
-    const timer1 = setTimeout(handleRouteChange, 50); // Quick check
-    const timer2 = setTimeout(handleRouteChange, 200); // Delayed check
-    
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-    };
-  }, [pathname]);
+    // Set correct initial state based on page
+    if (isHome) {
+      setScrolled(false);
+    } else {
+      setScrolled(true);
+    }
+  }, [pathname, isHome]);
 
   useEffect(() => {
     let ignore = false;
