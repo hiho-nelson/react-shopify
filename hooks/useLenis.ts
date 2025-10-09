@@ -7,6 +7,13 @@ export function useLenis() {
   const lenisRef = useRef<Lenis | null>(null);
   const rafRef = useRef<number | null>(null);
 
+  // Initialize scrollY with current scroll position
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setScrollY(window.scrollY);
+    }
+  }, []);
+
   // Throttled scroll handler to improve performance
   const handleScroll = useCallback(({ scroll }: { scroll: number }) => {
     setScrollY(scroll);
@@ -29,6 +36,8 @@ export function useLenis() {
     
     // Skip Lenis on mobile devices for better touch performance
     if (isMobileDevice) {
+      // Initialize scroll position for mobile
+      setScrollY(window.scrollY);
       // Set up native scroll listener for mobile devices
       window.addEventListener('scroll', handleNativeScroll, { passive: true });
       return () => {
