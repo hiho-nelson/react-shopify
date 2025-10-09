@@ -7,36 +7,32 @@ import { ShoppingBag, Menu, X, User, Search } from 'lucide-react';
 import { useCollections } from '@/hooks/useCollections';
 import { usePathname } from 'next/navigation';
 import { SearchModal } from '@/components/shopify/SearchModal';
-import { useLenis } from '@/hooks/useLenis';
 
 export function Header() {
   const { cart, toggleCart } = useCartStore();
   const [customerEmail, setCustomerEmail] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const [localScrollY, setLocalScrollY] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === '/';
-  const { scrollY } = useLenis();
   
-  // Initialize client-side state
+  // Handle scroll state directly
   useEffect(() => {
-    setIsClient(true);
-    if (typeof window !== "undefined") {
-      setLocalScrollY(window.scrollY);
-    }
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setScrolled(scrollY >= 300);
+    };
+
+    // Set initial state
+    handleScroll();
+
+    // Add scroll listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
-
-  // Update local scroll state on route change
-  useEffect(() => {
-    if (isClient && typeof window !== "undefined") {
-      setLocalScrollY(window.scrollY);
-    }
-  }, [pathname, isClient]);
-
-  // Use local scroll position as fallback
-  const currentScrollY = isClient ? (scrollY || localScrollY) : 0;
-  const scrolled = isClient && currentScrollY >= 300;
 
   useEffect(() => {
     let ignore = false;
