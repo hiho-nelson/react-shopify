@@ -84,13 +84,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* <SmoothScrollProvider> */}
+        <SmoothScrollProvider>
           <Header />
           <main>{children}</main>
           <Footer />
           <CartSidebar />
           <SpeedInsights/>
-        {/* </SmoothScrollProvider> */}
+        </SmoothScrollProvider>
       </body>
     </html>
   );

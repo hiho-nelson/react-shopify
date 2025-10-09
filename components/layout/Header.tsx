@@ -27,37 +27,53 @@ export function Header() {
     // Home route: use an invisible sentinel to detect crossing 300px
     setScrolled(false);
 
-    let observer: IntersectionObserver | null = null;
-    let sentinel = document.getElementById('header-sentinel');
+    const initObserver = () => {
+      let observer: IntersectionObserver | null = null;
+      let sentinel = document.getElementById('header-sentinel');
 
-    if (!sentinel) {
-      sentinel = document.createElement('div');
-      sentinel.id = 'header-sentinel';
-      // Place the sentinel 300px below the top so crossing it toggles state
-      sentinel.style.position = 'absolute';
-      sentinel.style.top = '300px';
-      sentinel.style.left = '0';
-      sentinel.style.width = '1px';
-      sentinel.style.height = '1px';
-      sentinel.style.pointerEvents = 'none';
-      sentinel.setAttribute('aria-hidden', 'true');
-      document.body.appendChild(sentinel);
-    }
+      if (!sentinel) {
+        sentinel = document.createElement('div');
+        sentinel.id = 'header-sentinel';
+        // Place the sentinel 300px below the top so crossing it toggles state
+        sentinel.style.position = 'absolute';
+        sentinel.style.top = '300px';
+        sentinel.style.left = '0';
+        sentinel.style.width = '1px';
+        sentinel.style.height = '1px';
+        sentinel.style.pointerEvents = 'none';
+        sentinel.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(sentinel);
+      }
 
-    observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        // When the sentinel is NOT intersecting, we've scrolled past 300px
-        setScrolled(!entry.isIntersecting);
-      },
-      { root: null, threshold: 0 }
-    );
+      observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          // When the sentinel is NOT intersecting, we've scrolled past 300px
+          setScrolled(!entry.isIntersecting);
+        },
+        { root: null, threshold: 0 }
+      );
 
-    observer.observe(sentinel);
+      observer.observe(sentinel);
+
+      return () => {
+        if (observer) observer.disconnect();
+        // Keep the sentinel in the DOM to reuse across navigations
+      };
+    };
+
+    // Try immediate initialization
+    const cleanup1 = initObserver();
+    
+    // Fallback: try again after a short delay for Vercel
+    const timer = setTimeout(() => {
+      const cleanup2 = initObserver();
+      return cleanup2;
+    }, 100);
 
     return () => {
-      if (observer) observer.disconnect();
-      // Keep the sentinel in the DOM to reuse across navigations
+      if (cleanup1) cleanup1();
+      clearTimeout(timer);
     };
   }, [isHome]);
 
