@@ -20,14 +20,14 @@ export function Header() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      console.log('Header scroll check:', scrollY, scrollY >= 300); // Debug log
       setScrolled(scrollY >= 300);
     };
 
-    // Set initial state with a small delay to ensure DOM is ready
+    // Set initial state immediately and with delay
+    handleScroll(); // Immediate check
     const timer = setTimeout(() => {
-      handleScroll();
-    }, 100);
+      handleScroll(); // Delayed check for Vercel
+    }, 200);
 
     // Add scroll listener
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -40,20 +40,24 @@ export function Header() {
 
   // Also handle route changes
   useEffect(() => {
-    // Reset to top on route change
+    // Force reset to top and state on route change
     window.scrollTo(0, 0);
     setScrolled(false);
     
     const handleRouteChange = () => {
       const scrollY = window.scrollY;
-      console.log('Route change scroll check:', scrollY, scrollY >= 300); // Debug log
       setScrolled(scrollY >= 300);
     };
 
-    // Small delay to ensure scroll position is updated after route change
-    const timer = setTimeout(handleRouteChange, 50);
+    // Multiple checks to ensure correct state on Vercel
+    handleRouteChange(); // Immediate
+    const timer1 = setTimeout(handleRouteChange, 50); // Quick check
+    const timer2 = setTimeout(handleRouteChange, 200); // Delayed check
     
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
   }, [pathname]);
 
   useEffect(() => {
@@ -117,7 +121,7 @@ export function Header() {
     return () => clearTimeout(t2);
   }, [megaOpen]);
 
-  const solid = !isHome || scrolled;
+  const solid = scrolled;
 
   return (
     <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out ${solid ? 'bg-white shadow-sm border-b' : 'bg-transparent border-none shadow-none'}`}>
@@ -125,7 +129,7 @@ export function Header() {
         <div className={`w-full flex justify-between items-center ${solid ? 'h-20' : 'h-36'} transition-[height] duration-300`}>
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className={`text-2xl font-bold transition-colors duration-300 ease-in-out ${solid ? 'text-gray-900' : 'text-white'}`}>Christopher Photos</span>
+            <span className={`text-2xl font-bold transition-colors duration-300 ease-in-out ${solid ? 'text-gray-900' : (isHome ? 'text-white' : 'text-gray-900')}`}>Christopher Photos</span>
           </Link>
 
           {/* Right: menu + account/cart */}
@@ -134,13 +138,13 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-2 relative">
             <Link 
               href="#" 
-              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : (isHome ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-gray-900')} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">About Me</span>
             </Link>
             <button
               type="button"
-              className={`px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out ${solid ? (megaOpen ? 'text-gray-900' : 'text-gray-700 hover:text-gray-900') : (megaOpen ? 'text-white' : 'text-white/90 hover:text-white')}`}
+              className={`px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out ${solid ? (megaOpen ? 'text-gray-900' : 'text-gray-700 hover:text-gray-900') : (megaOpen ? (isHome ? 'text-white' : 'text-gray-900') : (isHome ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-gray-900'))}`}
               onMouseEnter={openMega}
               onFocus={openMega}
               onMouseLeave={closeMega}
@@ -151,19 +155,19 @@ export function Header() {
             </button>
             <Link 
               href="#" 
-              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : (isHome ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-gray-900')} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Process</span>
             </Link>
             <Link 
               href="#" 
-              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : (isHome ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-gray-900')} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Blog</span>
             </Link>
             <Link 
               href="#" 
-              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : (isHome ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-gray-900')} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200 border px-7 py-2" style={{borderColor: solid ? '#6b7280' : 'white'}}>Contact Me</span>
             </Link>
