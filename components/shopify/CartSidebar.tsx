@@ -73,46 +73,46 @@ export function CartSidebar() {
           ) : (
             <div className="p-4 space-y-4">
               {cart?.lines.map((line) => (
-                <div key={line.id} className="flex gap-3 p-3 border rounded-lg">
+                <div key={line.id} className="flex gap-5 p-3">
                   {/* 产品图片 */}
-                  <div className="relative w-16 h-16 flex-shrink-0">
+                  <div className="relative w-36 h-24 flex-shrink-0">
                     {line.merchandise.product.images[0] ? (
                       <Image
                         src={line.merchandise.product.images[0].url}
                         alt={line.merchandise.product.images[0].altText || line.merchandise.product.title}
                         fill
-                        className="object-cover rounded"
+                        className="object-cover"
                         sizes="64px"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                         <span className="text-gray-400 text-xs">No Image</span>
                       </div>
                     )}
                   </div>
 
                   {/* 产品信息 */}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <Link 
                       href={`/products/${line.merchandise.product.handle}`}
                       onClick={closeCart}
-                      className="font-medium text-sm hover:underline line-clamp-2"
+                      className="font-thin text-2xl capitalize hover:underline line-clamp-2"
                     >
                       {line.merchandise.product.title}
                     </Link>
                     <p className="text-xs text-gray-500 mt-1">
                       {line.merchandise.title}
                     </p>
-                    <p className="text-sm font-medium mt-1">
+                    <p className="text-lg font-medium mt-1">
                       {new Intl.NumberFormat('en-US', { style: 'currency', currency: line.cost.totalAmount.currencyCode, currencyDisplay: 'narrowSymbol', minimumFractionDigits: 2 }).format(parseFloat(line.cost.totalAmount.amount))}
                     </p>
                   </div>
 
                   {/* 数量控制 */}
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-2 justify-between">
                     <div className="flex items-center gap-1">
                       <Button
-                        variant="outline"
+                        variant="link"
                         size="sm"
                         className="h-6 w-6 p-0"
                         onClick={() => updateQuantity(line.id, Math.max(0, line.quantity - 1))}
@@ -122,7 +122,7 @@ export function CartSidebar() {
                       </Button>
                       <span className="w-8 text-center text-sm">{line.quantity}</span>
                       <Button
-                        variant="outline"
+                        variant="link"
                         size="sm"
                         className="h-6 w-6 p-0"
                         onClick={() => updateQuantity(line.id, line.quantity + 1)}
@@ -134,7 +134,7 @@ export function CartSidebar() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                      className="h-6 w-6 p-0 text-[#b8bca5]"
                       onClick={() => removeItem(line.id)}
                       disabled={loading}
                     >
@@ -149,7 +149,7 @@ export function CartSidebar() {
 
         {/* 底部 */}
         {cart && cart.lines.length > 0 && (
-          <div className="border-t p-4 space-y-4">
+          <div className="p-4 space-y-4">
             {/* 总价 */}
             <div className="flex justify-between text-lg font-semibold">
               <span>Total</span>
