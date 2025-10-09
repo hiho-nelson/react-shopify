@@ -4,11 +4,13 @@ import Lenis from 'lenis';
 export function useLenis() {
   const [lenis, setLenis] = useState<Lenis | null>(null);
   const [scrollY, setScrollY] = useState(0);
+  const [isClient, setIsClient] = useState(false);
   const lenisRef = useRef<Lenis | null>(null);
   const rafRef = useRef<number | null>(null);
 
-  // Initialize scrollY with current scroll position
+  // Initialize client-side state
   useEffect(() => {
+    setIsClient(true);
     if (typeof window !== "undefined") {
       setScrollY(window.scrollY);
     }
@@ -26,7 +28,7 @@ export function useLenis() {
 
   useEffect(() => {
     // Only initialize on client side and not on auth pages
-    if (typeof window === "undefined") return;
+    if (!isClient || typeof window === "undefined") return;
     
     // Skip Lenis on auth pages for better performance
     if (window.location.pathname.startsWith('/account/')) return;
@@ -111,7 +113,7 @@ export function useLenis() {
       window.removeEventListener("focus", handleFocus);
       window.removeEventListener("resize", handleResize);
     };
-  }, [handleScroll]);
+  }, [handleScroll, isClient]);
 
   return { lenis, scrollY };
 }

@@ -13,12 +13,18 @@ export function Header() {
   const { cart, toggleCart } = useCartStore();
   const [customerEmail, setCustomerEmail] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === '/';
   const { scrollY } = useLenis();
   
+  // Initialize client-side state
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
   // Use Lenis scroll position instead of window.scrollY
-  const scrolled = scrollY >= 300;
+  const scrolled = isClient && scrollY >= 300;
 
   useEffect(() => {
     let ignore = false;
