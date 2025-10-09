@@ -3,10 +3,11 @@
 import { shopifyClient } from './client';
 import type { ShopifyProduct, ShopifyCollection, ShopifyCart, CartItem, ShopifyArticle } from './types';
 
-// 服务端产品操作 - 无缓存，直接调用
+// 服务端产品操作 - 禁用缓存，立即更新
 export async function getProduct(handle: string): Promise<ShopifyProduct | null> {
   try {
-    return await shopifyClient.getProductByHandle(handle);
+    const product = await shopifyClient.getProductByHandle(handle);
+    return product;
   } catch (error) {
     console.error('Error fetching product:', error);
     return null;
@@ -15,7 +16,8 @@ export async function getProduct(handle: string): Promise<ShopifyProduct | null>
 
 export async function getProducts(first: number = 20, after?: string): Promise<{ products: ShopifyProduct[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } }> {
   try {
-    return await shopifyClient.getProducts(first, after);
+    const result = await shopifyClient.getProducts(first, after);
+    return result;
   } catch (error) {
     console.error('Error fetching products:', error);
     return { products: [], pageInfo: { hasNextPage: false, endCursor: null } };
@@ -24,7 +26,8 @@ export async function getProducts(first: number = 20, after?: string): Promise<{
 
 export async function searchProducts(query: string, first: number = 10): Promise<{ products: ShopifyProduct[] }> {
   try {
-    return await shopifyClient.searchProducts(query, first);
+    const result = await shopifyClient.searchProducts(query, first);
+    return result;
   } catch (error) {
     console.error('Error searching products:', error);
     return { products: [] };

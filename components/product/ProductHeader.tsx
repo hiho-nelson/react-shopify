@@ -17,10 +17,10 @@ export function ProductHeader({
 }: ProductHeaderProps) {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-3xl md:text-6xl font-thin capitalize text-gray-900 mb-3 md:mb-4">
+      <h1 className="text-3xl md:text-6xl font-thin capitalize text-gray-900">
         {product.title}
       </h1>
-      <p className="text-sm md:text-base text-gray-500">Limited Edition Print -1/25 units</p>
+      <p className="text-sm md:text-base text-gray-500 mb-3 md:mb-4">Limited Edition Print -1/25</p>
 
       {product.description && (
         <div>

@@ -11,7 +11,7 @@ class ShopifyClient {
     this.accessToken = SHOPIFY_CONFIG.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
   }
 
-  private async graphqlRequest(query: string, variables: Record<string, any> = {}, retries = 3) {
+  private async graphqlRequest(query: string, variables: Record<string, any> = {}, retries = 3, tags: string[] = ['shopify']) {
     // 检查环境变量
     if (!this.storeDomain || !this.accessToken) {
       throw new Error('Shopify environment variables are not configured. Please check your .env.local file.');
@@ -38,7 +38,11 @@ class ShopifyClient {
             query,
             variables,
           }),
-          signal: controller.signal
+          signal: controller.signal,
+          next: { 
+            tags,
+            revalidate: 10 // 减少缓存时间到10秒，确保更快更新
+          }
         });
 
         clearTimeout(timeoutId);
@@ -149,10 +153,12 @@ class ShopifyClient {
 
   // 获取产品列表
   async getProducts(first: number = 20, after?: string) {
-    const data = await this.graphqlRequest(SHOPIFY_QUERIES.GET_PRODUCTS, {
-      first,
-      after,
-    });
+    const data = await this.graphqlRequest(
+      SHOPIFY_QUERIES.GET_PRODUCTS, 
+      { first, after }, 
+      3, 
+      ['shopify', 'products']
+    );
 
     return {
       products: data.products.edges.map((edge: any) => this.transformProduct(edge.node)),
@@ -162,9 +168,12 @@ class ShopifyClient {
 
   // 根据 handle 获取单个产品
   async getProductByHandle(handle: string) {
-    const data = await this.graphqlRequest(SHOPIFY_QUERIES.GET_PRODUCT_BY_HANDLE, {
-      handle,
-    });
+    const data = await this.graphqlRequest(
+      SHOPIFY_QUERIES.GET_PRODUCT_BY_HANDLE, 
+      { handle }, 
+      3, 
+      ['shopify', 'products', `product-${handle}`]
+    );
 
     return data.product ? this.transformProduct(data.product) : null;
   }
@@ -172,10 +181,12 @@ class ShopifyClient {
 
   // 搜索产品
   async searchProducts(query: string, first: number = 10) {
-    const data = await this.graphqlRequest(SHOPIFY_QUERIES.SEARCH_PRODUCTS, {
-      query,
-      first,
-    });
+    const data = await this.graphqlRequest(
+      SHOPIFY_QUERIES.SEARCH_PRODUCTS, 
+      { query, first }, 
+      3, 
+      ['shopify', 'products', 'search']
+    );
 
     return {
       products: data.products.edges.map((edge: any) => this.transformProduct(edge.node)),
@@ -184,9 +195,12 @@ class ShopifyClient {
 
   // 获取分类列表
   async getCollections(first: number = 10) {
-    const data = await this.graphqlRequest(SHOPIFY_QUERIES.GET_COLLECTIONS, {
-      first,
-    });
+    const data = await this.graphqlRequest(
+      SHOPIFY_QUERIES.GET_COLLECTIONS, 
+      { first }, 
+      3, 
+      ['shopify', 'collections']
+    );
 
     return data.collections.edges.map((edge: any) => this.transformCollection(edge.node));
   }
