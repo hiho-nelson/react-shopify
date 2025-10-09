@@ -121,7 +121,7 @@ export function Header() {
     return () => clearTimeout(t2);
   }, [megaOpen]);
 
-  const solid = scrolled;
+  const solid = !isHome || scrolled;
 
   return (
     <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out ${solid ? 'bg-white shadow-sm border-b' : 'bg-transparent border-none shadow-none'}`}>
