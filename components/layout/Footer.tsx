@@ -18,7 +18,7 @@ export function Footer() {
         <div className="absolute inset-0 bg-black/30" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="max-w-6xl px-6 text-center text-white">
-            <p className="text-2xl sm:text-3xl lg:text-[28px] leading-relaxed font-[200]">
+            <p className="text-base sm:text-3xl lg:text-[28px] leading-relaxed font-[200]">
               “Thank you sooo much for these incredible photos. Wow, we are absolutely blown away.
               We are more than happy to share any positive reviews about our experience working with you because you were absolutely wonderful
               and made the painful process of getting photos SO easy for us all. We cannot express our gratitude enough. So so thankful for your hard work! ”

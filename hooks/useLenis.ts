@@ -12,12 +12,29 @@ export function useLenis() {
     setScrollY(scroll);
   }, []);
 
+  // Fallback scroll handler for mobile devices
+  const handleNativeScroll = useCallback(() => {
+    setScrollY(window.scrollY);
+  }, []);
+
   useEffect(() => {
     // Only initialize on client side and not on auth pages
     if (typeof window === "undefined") return;
     
     // Skip Lenis on auth pages for better performance
     if (window.location.pathname.startsWith('/account/')) return;
+
+    // Check if device is mobile (only by user agent, not screen size)
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Skip Lenis on mobile devices for better touch performance
+    if (isMobileDevice) {
+      // Set up native scroll listener for mobile devices
+      window.addEventListener('scroll', handleNativeScroll, { passive: true });
+      return () => {
+        window.removeEventListener('scroll', handleNativeScroll);
+      };
+    }
 
     const lenisInstance = new Lenis({
       duration: 1.2, // Slightly longer duration for smoother feel
@@ -61,8 +78,19 @@ export function useLenis() {
     const handleBlur = () => lenisInstance.stop();
     const handleFocus = () => lenisInstance.start();
 
+    // Handle resize - only stop/start based on actual mobile devices, not screen size
+    const handleResize = () => {
+      const isMobileDeviceNow = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobileDeviceNow) {
+        lenisInstance.stop();
+      } else {
+        lenisInstance.start();
+      }
+    };
+
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       if (rafRef.current) {
@@ -72,6 +100,7 @@ export function useLenis() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("resize", handleResize);
     };
   }, [handleScroll]);
 
