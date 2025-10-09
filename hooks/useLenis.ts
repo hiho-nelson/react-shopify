@@ -8,13 +8,21 @@ export function useLenis() {
   const lenisRef = useRef<Lenis | null>(null);
   const rafRef = useRef<number | null>(null);
 
-  // Initialize client-side state
+  // Initialize client-side state and scroll position
   useEffect(() => {
     setIsClient(true);
     if (typeof window !== "undefined") {
       setScrollY(window.scrollY);
     }
   }, []);
+
+  // Update scroll position on every render when client-side
+  useEffect(() => {
+    if (isClient && typeof window !== "undefined") {
+      const updateScrollY = () => setScrollY(window.scrollY);
+      updateScrollY();
+    }
+  });
 
   // Throttled scroll handler to improve performance
   const handleScroll = useCallback(({ scroll }: { scroll: number }) => {
