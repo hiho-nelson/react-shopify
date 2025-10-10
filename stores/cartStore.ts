@@ -138,7 +138,7 @@ export const useCartStore = create<CartState & CartActions>()(
               status: response.status,
               statusText: response.statusText,
               error: errorText,
-              cartId,
+              cartId: cart.id,
               lineId,
               quantity
             });
