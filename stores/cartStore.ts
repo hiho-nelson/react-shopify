@@ -209,24 +209,10 @@ export const useCartStore = create<CartState & CartActions>()(
         const { cart, updatingLineIds } = get();
         if (!cart?.id) return;
         
-        // Store original state for rollback
-        const originalCart = JSON.parse(JSON.stringify(cart));
-        const lineToRemove = cart.lines.find(line => line.id === lineId);
-        if (!lineToRemove) return;
-        
-        // Optimistic update: immediately remove from UI (let Shopify handle costs)
-        const updatedCart = {
-          ...cart,
-          lines: cart.lines.filter(line => line.id !== lineId),
-          totalQuantity: cart.totalQuantity - lineToRemove.quantity
-          // Don't update costs optimistically - let Shopify calculate them
-        };
-        
-        // Mark line as updating and update cart optimistically
+        // Mark line as updating (no optimistic update)
         const newUpdatingLineIds = new Set(updatingLineIds);
         newUpdatingLineIds.add(lineId);
         set({ 
-          cart: updatedCart, 
           updatingLineIds: newUpdatingLineIds,
           error: null 
         });
@@ -256,7 +242,7 @@ export const useCartStore = create<CartState & CartActions>()(
               
               const data = await response.json();
               
-              // Remove from updating set and confirm the update
+              // Remove from updating set and update cart with server response
               const finalUpdatingLineIds = new Set(updatingLineIds);
               finalUpdatingLineIds.delete(lineId);
               set({ 
@@ -289,11 +275,10 @@ export const useCartStore = create<CartState & CartActions>()(
             lineId
           });
           
-          // Rollback to original state
+          // Remove from updating set and show error
           const finalUpdatingLineIds = new Set(updatingLineIds);
           finalUpdatingLineIds.delete(lineId);
           set({ 
-            cart: originalCart,
             updatingLineIds: finalUpdatingLineIds,
             error: error instanceof Error ? error.message : 'Unknown error',
             loading: false 
