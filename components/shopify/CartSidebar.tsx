@@ -8,7 +8,7 @@ import { useCartStore } from '@/stores/cartStore';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 
 export function CartSidebar() {
-  const { cart, loading, isOpen, updateQuantity, removeItem, closeCart } = useCartStore();
+  const { cart, loading, isOpen, updateQuantity, removeItem, closeCart, isLineUpdating } = useCartStore();
 
   // 控制开合过渡（保持挂载以实现退出动画）
   const [visible, setVisible] = useState(false);
@@ -61,19 +61,17 @@ export function CartSidebar() {
 
         {/* 购物车内容 */}
         <div className="flex-1 overflow-y-auto">
-          {loading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-            </div>
-          ) : cart?.lines.length === 0 ? (
+          {cart?.lines.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-gray-500">
               <ShoppingBag className="h-12 w-12 mb-2" />
               <p>Your cart is empty</p>
             </div>
           ) : (
             <div className="p-4 space-y-4">
-              {cart?.lines.map((line) => (
-                <div key={line.id} className="flex gap-5 p-3">
+              {cart?.lines.map((line) => {
+                const isUpdating = isLineUpdating(line.id);
+                return (
+                <div key={line.id} className={`flex gap-5 p-3 transition-opacity duration-200 ${isUpdating ? 'opacity-60' : 'opacity-100'}`}>
                   {/* 产品图片 */}
                   <div className="relative w-36 h-24 flex-shrink-0">
                     {line.merchandise.product.images[0] ? (
@@ -116,17 +114,23 @@ export function CartSidebar() {
                         size="sm"
                         className="h-6 w-6 p-0"
                         onClick={() => updateQuantity(line.id, Math.max(0, line.quantity - 1))}
-                        disabled={loading}
+                        disabled={isUpdating}
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="w-8 text-center text-sm">{line.quantity}</span>
+                      <span className="w-8 text-center text-sm flex items-center justify-center">
+                        {isUpdating ? (
+                          <div className="animate-spin rounded-full h-3 w-3 border-b border-gray-400"></div>
+                        ) : (
+                          line.quantity
+                        )}
+                      </span>
                       <Button
                         variant="link"
                         size="sm"
                         className="h-6 w-6 p-0"
                         onClick={() => updateQuantity(line.id, line.quantity + 1)}
-                        disabled={loading}
+                        disabled={isUpdating}
                       >
                         <Plus className="h-3 w-3" />
                       </Button>
@@ -136,13 +140,14 @@ export function CartSidebar() {
                       size="sm"
                       className="h-6 w-6 p-0 text-[#b8bca5]"
                       onClick={() => removeItem(line.id)}
-                      disabled={loading}
+                      disabled={isUpdating}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

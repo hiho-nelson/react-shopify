@@ -9,6 +9,7 @@ interface CartState {
   loading: boolean;
   error: string | null;
   isOpen: boolean;
+  updatingLineIds: Set<string>;
 }
 
 interface CartActions {
@@ -23,6 +24,7 @@ interface CartActions {
   removeItem: (lineId: string) => Promise<void>;
   clearCart: () => Promise<void>;
   loadCart: (cartId: string) => Promise<void>;
+  isLineUpdating: (lineId: string) => boolean;
 }
 
 export const useCartStore = create<CartState & CartActions>()(
@@ -33,6 +35,7 @@ export const useCartStore = create<CartState & CartActions>()(
       loading: false,
       error: null,
       isOpen: false,
+      updatingLineIds: new Set<string>(),
 
       // Actions
       setCart: (cart) => set({ cart, loading: false, error: null }),
@@ -91,12 +94,42 @@ export const useCartStore = create<CartState & CartActions>()(
       },
 
       updateQuantity: async (lineId: string, quantity: number) => {
-        const { cart } = get();
+        const { cart, updatingLineIds } = get();
         if (!cart?.id) return;
         
+        // Store original state for rollback
+        const originalCart = JSON.parse(JSON.stringify(cart));
+        const originalLine = cart.lines.find(line => line.id === lineId);
+        if (!originalLine) return;
+        
+        // Optimistic update: immediately update the UI
+        const updatedCart = {
+          ...cart,
+          lines: cart.lines.map(line => 
+            line.id === lineId 
+              ? { ...line, quantity }
+              : line
+          ),
+          cost: {
+            ...cart.cost,
+            totalAmount: {
+              ...cart.cost.totalAmount,
+              amount: (parseFloat(cart.cost.totalAmount.amount) + 
+                (quantity - originalLine.quantity) * parseFloat(originalLine.cost.totalAmount.amount)).toString()
+            }
+          }
+        };
+        
+        // Mark line as updating and update cart optimistically
+        const newUpdatingLineIds = new Set(updatingLineIds);
+        newUpdatingLineIds.add(lineId);
+        set({ 
+          cart: updatedCart, 
+          updatingLineIds: newUpdatingLineIds,
+          error: null 
+        });
+        
         try {
-          set({ loading: true, error: null });
-          
           const response = await fetch('/api/cart/update', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -108,10 +141,24 @@ export const useCartStore = create<CartState & CartActions>()(
           
           if (!response.ok) throw new Error('Failed to update cart');
           const data = await response.json();
-          set({ cart: data.cart, loading: false });
+          
+          // Remove from updating set and confirm the update
+          const finalUpdatingLineIds = new Set(updatingLineIds);
+          finalUpdatingLineIds.delete(lineId);
+          set({ 
+            cart: data.cart, 
+            updatingLineIds: finalUpdatingLineIds,
+            loading: false 
+          });
         } catch (error) {
           console.error('Zustand: Error updating cart', error);
+          
+          // Rollback to original state
+          const finalUpdatingLineIds = new Set(updatingLineIds);
+          finalUpdatingLineIds.delete(lineId);
           set({ 
+            cart: originalCart,
+            updatingLineIds: finalUpdatingLineIds,
             error: error instanceof Error ? error.message : 'Unknown error',
             loading: false 
           });
@@ -119,12 +166,39 @@ export const useCartStore = create<CartState & CartActions>()(
       },
 
       removeItem: async (lineId: string) => {
-        const { cart } = get();
+        const { cart, updatingLineIds } = get();
         if (!cart?.id) return;
         
+        // Store original state for rollback
+        const originalCart = JSON.parse(JSON.stringify(cart));
+        const lineToRemove = cart.lines.find(line => line.id === lineId);
+        if (!lineToRemove) return;
+        
+        // Optimistic update: immediately remove from UI
+        const updatedCart = {
+          ...cart,
+          lines: cart.lines.filter(line => line.id !== lineId),
+          totalQuantity: cart.totalQuantity - lineToRemove.quantity,
+          cost: {
+            ...cart.cost,
+            totalAmount: {
+              ...cart.cost.totalAmount,
+              amount: (parseFloat(cart.cost.totalAmount.amount) - 
+                parseFloat(lineToRemove.cost.totalAmount.amount)).toString()
+            }
+          }
+        };
+        
+        // Mark line as updating and update cart optimistically
+        const newUpdatingLineIds = new Set(updatingLineIds);
+        newUpdatingLineIds.add(lineId);
+        set({ 
+          cart: updatedCart, 
+          updatingLineIds: newUpdatingLineIds,
+          error: null 
+        });
+        
         try {
-          set({ loading: true, error: null });
-          
           const response = await fetch('/api/cart/remove', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
@@ -133,10 +207,24 @@ export const useCartStore = create<CartState & CartActions>()(
           
           if (!response.ok) throw new Error('Failed to remove item');
           const data = await response.json();
-          set({ cart: data.cart, loading: false });
+          
+          // Remove from updating set and confirm the update
+          const finalUpdatingLineIds = new Set(updatingLineIds);
+          finalUpdatingLineIds.delete(lineId);
+          set({ 
+            cart: data.cart, 
+            updatingLineIds: finalUpdatingLineIds,
+            loading: false 
+          });
         } catch (error) {
           console.error('Zustand: Error removing item', error);
+          
+          // Rollback to original state
+          const finalUpdatingLineIds = new Set(updatingLineIds);
+          finalUpdatingLineIds.delete(lineId);
           set({ 
+            cart: originalCart,
+            updatingLineIds: finalUpdatingLineIds,
             error: error instanceof Error ? error.message : 'Unknown error',
             loading: false 
           });
@@ -154,10 +242,20 @@ export const useCartStore = create<CartState & CartActions>()(
       },
 
       loadCart: async () => Promise.resolve(),
+      
+      isLineUpdating: (lineId: string) => {
+        const { updatingLineIds } = get();
+        return updatingLineIds.has(lineId);
+      },
     }),
     {
       name: 'shopify-cart-storage',
       // use default localStorage; no custom hydration flags
+      partialize: (state) => ({
+        cart: state.cart,
+        isOpen: state.isOpen,
+        // Don't persist loading, error, or updatingLineIds as they are temporary states
+      }),
     }
   )
 );

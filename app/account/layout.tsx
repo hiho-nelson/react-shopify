@@ -26,23 +26,19 @@ export default function AccountLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {/* Lightweight header for auth pages */}
-        <header className="fixed inset-x-0 top-0 z-50 bg-white shadow-sm border-b">
-          <div className="flex justify-center px-4 sm:px-12">
-            <div className="w-full flex justify-between items-center h-20">
-              <a href="/" className="flex items-center">
-                <span className="text-2xl font-bold text-gray-900">Christopher Photos</span>
-              </a>
-            </div>
+    <>
+      {/* Lightweight header for auth pages */}
+      <header className="fixed inset-x-0 top-0 z-50 bg-white shadow-sm border-b">
+        <div className="flex justify-center px-4 sm:px-12">
+          <div className="w-full flex justify-between items-center h-20">
+            <a href="/" className="flex items-center">
+              <span className="text-2xl font-bold text-gray-900">Christopher Photos</span>
+            </a>
           </div>
-        </header>
-        
-        <main className="pt-20">{children}</main>
-      </body>
-    </html>
+        </div>
+      </header>
+      
+      <main className="pt-20">{children}</main>
+    </>
   );
 }
