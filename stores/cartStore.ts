@@ -102,22 +102,15 @@ export const useCartStore = create<CartState & CartActions>()(
         const originalLine = cart.lines.find(line => line.id === lineId);
         if (!originalLine) return;
         
-        // Optimistic update: immediately update the UI
+        // Optimistic update: immediately update the UI (only quantity, let Shopify handle costs)
         const updatedCart = {
           ...cart,
           lines: cart.lines.map(line => 
             line.id === lineId 
               ? { ...line, quantity }
               : line
-          ),
-          cost: {
-            ...cart.cost,
-            totalAmount: {
-              ...cart.cost.totalAmount,
-              amount: (parseFloat(cart.cost.totalAmount.amount) + 
-                (quantity - originalLine.quantity) * parseFloat(originalLine.cost.totalAmount.amount)).toString()
-            }
-          }
+          )
+          // Don't update costs optimistically - let Shopify calculate them
         };
         
         // Mark line as updating and update cart optimistically
@@ -139,7 +132,19 @@ export const useCartStore = create<CartState & CartActions>()(
             }),
           });
           
-          if (!response.ok) throw new Error('Failed to update cart');
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Cart update failed:', {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorText,
+              cartId,
+              lineId,
+              quantity
+            });
+            throw new Error(`Failed to update cart: ${response.status} ${response.statusText} - ${errorText}`);
+          }
+          
           const data = await response.json();
           
           // Remove from updating set and confirm the update
@@ -151,7 +156,13 @@ export const useCartStore = create<CartState & CartActions>()(
             loading: false 
           });
         } catch (error) {
-          console.error('Zustand: Error updating cart', error);
+          console.error('Zustand: Error updating cart', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            cartId: cart.id,
+            lineId,
+            quantity,
+            originalQuantity: originalLine.quantity
+          });
           
           // Rollback to original state
           const finalUpdatingLineIds = new Set(updatingLineIds);
@@ -174,19 +185,12 @@ export const useCartStore = create<CartState & CartActions>()(
         const lineToRemove = cart.lines.find(line => line.id === lineId);
         if (!lineToRemove) return;
         
-        // Optimistic update: immediately remove from UI
+        // Optimistic update: immediately remove from UI (let Shopify handle costs)
         const updatedCart = {
           ...cart,
           lines: cart.lines.filter(line => line.id !== lineId),
-          totalQuantity: cart.totalQuantity - lineToRemove.quantity,
-          cost: {
-            ...cart.cost,
-            totalAmount: {
-              ...cart.cost.totalAmount,
-              amount: (parseFloat(cart.cost.totalAmount.amount) - 
-                parseFloat(lineToRemove.cost.totalAmount.amount)).toString()
-            }
-          }
+          totalQuantity: cart.totalQuantity - lineToRemove.quantity
+          // Don't update costs optimistically - let Shopify calculate them
         };
         
         // Mark line as updating and update cart optimistically
@@ -205,7 +209,18 @@ export const useCartStore = create<CartState & CartActions>()(
             body: JSON.stringify({ cartId: cart.id, lineIds: [lineId] }),
           });
           
-          if (!response.ok) throw new Error('Failed to remove item');
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Cart remove failed:', {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorText,
+              cartId: cart.id,
+              lineId
+            });
+            throw new Error(`Failed to remove item: ${response.status} ${response.statusText} - ${errorText}`);
+          }
+          
           const data = await response.json();
           
           // Remove from updating set and confirm the update
@@ -217,7 +232,11 @@ export const useCartStore = create<CartState & CartActions>()(
             loading: false 
           });
         } catch (error) {
-          console.error('Zustand: Error removing item', error);
+          console.error('Zustand: Error removing item', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            cartId: cart.id,
+            lineId
+          });
           
           // Rollback to original state
           const finalUpdatingLineIds = new Set(updatingLineIds);
