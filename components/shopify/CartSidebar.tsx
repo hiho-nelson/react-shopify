@@ -1,14 +1,24 @@
-'use client';
+"use client";
 
-import { Fragment, useEffect, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { useCartStore } from '@/stores/cartStore';
-import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
+import { Fragment, useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/stores/cartStore";
+import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 
 export function CartSidebar() {
-  const { cart, loading, isOpen, updateQuantity, removeItem, closeCart, isLineUpdating, error, clearError } = useCartStore();
+  const {
+    cart,
+    loading,
+    isOpen,
+    updateQuantity,
+    removeItem,
+    closeCart,
+    isLineUpdating,
+    error,
+    clearError,
+  } = useCartStore();
 
   // 控制开合过渡（保持挂载以实现退出动画）
   const [visible, setVisible] = useState(false);
@@ -36,13 +46,15 @@ export function CartSidebar() {
   return (
     <>
       {/* 背景遮罩 */}
-      <div 
-        className={`fixed inset-0 z-40 transition-opacity duration-200 ${entered ? 'opacity-100 bg-black/40' : 'opacity-0 bg-black/40'}`}
+      <div
+        className={`fixed inset-0 z-40 transition-opacity duration-200 ${entered ? "opacity-100 bg-black/40" : "opacity-0 bg-black/40"}`}
         onClick={handleClose}
       />
-      
+
       {/* 侧边栏 */}
-      <div className={`fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-xl z-50 flex flex-col transform transition-transform duration-300 ease-out ${entered ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div
+        className={`fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-xl z-50 flex flex-col transform transition-transform duration-300 ease-out ${entered ? "translate-x-0" : "translate-x-full"}`}
+      >
         {/* 头部 */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -64,10 +76,9 @@ export function CartSidebar() {
           {error && (
             <div className="p-4 bg-red-50 border-l-4 border-red-400 text-red-700 flex items-center justify-between">
               <p className="text-sm">
-                {error.includes('fetch failed') || error.includes('ECONNRESET') 
-                  ? 'Network error. Please check your connection and try again.'
-                  : error
-                }
+                {error.includes("fetch failed") || error.includes("ECONNRESET")
+                  ? "Network error. Please check your connection and try again."
+                  : error}
               </p>
               <Button
                 variant="ghost"
@@ -89,90 +100,123 @@ export function CartSidebar() {
               {cart?.lines.map((line) => {
                 const isUpdating = isLineUpdating(line.id);
                 return (
-                <div key={line.id} className={`flex gap-5 p-3 transition-opacity duration-200 ${isUpdating ? 'opacity-60' : 'opacity-100'}`}>
-                  {/* 产品图片 */}
-                  <div className="relative w-36 h-24 flex-shrink-0">
-                    {line.merchandise.product.images[0] ? (
-                      <Image
-                        src={line.merchandise.product.images[0].url}
-                        alt={line.merchandise.product.images[0].altText || line.merchandise.product.title}
-                        fill
-                        className="object-cover"
-                        sizes="64px"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">No Image</span>
+                  <div
+                    key={line.id}
+                    className={`flex gap-5 p-3 transition-opacity duration-200 ${isUpdating ? "opacity-60" : "opacity-100"}`}
+                  >
+                    {/* 产品图片 */}
+                    <div className="relative w-36 h-24 flex-shrink-0">
+                      {line.merchandise.product.images[0] ? (
+                        <Image
+                          src={line.merchandise.product.images[0].url}
+                          alt={
+                            line.merchandise.product.images[0].altText ||
+                            line.merchandise.product.title
+                          }
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400 text-xs">
+                            No Image
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 产品信息 */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div className="flex flex-col justify-between h-full">
+                        <Link
+                          href={`/products/${line.merchandise.product.handle}`}
+                          onClick={closeCart}
+                          className="font-thin text-2xl capitalize hover:underline line-clamp-2"
+                        >
+                          {line.merchandise.product.title}
+                        </Link>
+                        <p className="text-xs text-gray-500">
+                          {line.merchandise.title}
+                        </p>
+                        {/* Single price below description with smaller font */}
+                        <p className="text-sm text-gray-600 mt-1 font-semibold">
+                          {new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: line.cost.totalAmount.currencyCode,
+                            currencyDisplay: "narrowSymbol",
+                            minimumFractionDigits: 2,
+                          }).format(
+                            parseFloat(line.cost.totalAmount.amount) /
+                              line.quantity
+                          )} per
+                        </p>
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* 产品信息 */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-between">
-                    <Link 
-                      href={`/products/${line.merchandise.product.handle}`}
-                      onClick={closeCart}
-                      className="font-thin text-2xl capitalize hover:underline line-clamp-2"
-                    >
-                      {line.merchandise.product.title}
-                    </Link>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {line.merchandise.title}
-                    </p>
-                    <p className="text-lg font-medium mt-1">
-                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: line.cost.totalAmount.currencyCode, currencyDisplay: 'narrowSymbol', minimumFractionDigits: 2 }).format(parseFloat(line.cost.totalAmount.amount))}
-                    </p>
-                  </div>
-
-                  {/* 数量控制 */}
-                  <div className="flex flex-col items-end gap-2 justify-between">
-                    <div className="flex items-center gap-1">
+                    {/* 数量控制 */}
+                    <div className="flex flex-col items-end gap-2 justify-between">
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={() => {
+                            clearError();
+                            updateQuantity(
+                              line.id,
+                              Math.max(0, line.quantity - 1)
+                            );
+                          }}
+                          disabled={isUpdating}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="w-8 text-center text-sm flex items-center justify-center">
+                          {isUpdating ? (
+                            <div className="animate-spin rounded-full h-3 w-3 border-b border-gray-400"></div>
+                          ) : (
+                            line.quantity
+                          )}
+                        </span>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={() => {
+                            clearError();
+                            updateQuantity(line.id, line.quantity + 1);
+                          }}
+                          disabled={isUpdating}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      {/* Single total price between quantity and trash */}
+                      <div className="text-right">
+                        <p className="text-lg font-medium">
+                          {new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: line.cost.totalAmount.currencyCode,
+                            currencyDisplay: "narrowSymbol",
+                            minimumFractionDigits: 2,
+                          }).format(parseFloat(line.cost.totalAmount.amount))}
+                        </p>
+                      </div>
                       <Button
-                        variant="link"
+                        variant="ghost"
                         size="sm"
-                        className="h-6 w-6 p-0"
+                        className="h-6 w-6 p-0 text-[#b8bca5]"
                         onClick={() => {
                           clearError();
-                          updateQuantity(line.id, Math.max(0, line.quantity - 1));
+                          removeItem(line.id);
                         }}
                         disabled={isUpdating}
                       >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <span className="w-8 text-center text-sm flex items-center justify-center">
-                        {isUpdating ? (
-                          <div className="animate-spin rounded-full h-3 w-3 border-b border-gray-400"></div>
-                        ) : (
-                          line.quantity
-                        )}
-                      </span>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={() => {
-                          clearError();
-                          updateQuantity(line.id, line.quantity + 1);
-                        }}
-                        disabled={isUpdating}
-                      >
-                        <Plus className="h-3 w-3" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 text-[#b8bca5]"
-                      onClick={() => {
-                        clearError();
-                        removeItem(line.id);
-                      }}
-                      disabled={isUpdating}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
                   </div>
-                </div>
                 );
               })}
             </div>
@@ -183,17 +227,22 @@ export function CartSidebar() {
         {cart && cart.lines.length > 0 && (
           <div className="p-4 space-y-4">
             {/* 总价 */}
-            <div className="flex justify-between text-lg font-semibold">
-              <span>Total</span>
-              <span>
-                {new Intl.NumberFormat('en-US', { style: 'currency', currency: cart.cost.totalAmount.currencyCode, currencyDisplay: 'narrowSymbol', minimumFractionDigits: 2 }).format(parseFloat(cart.cost.totalAmount.amount))}
+            <div className="flex justify-between text-3xl font-thin">
+              <span className="">Total Price</span>
+              <span className="font-normal">
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: cart.cost.totalAmount.currencyCode,
+                  currencyDisplay: "narrowSymbol",
+                  minimumFractionDigits: 2,
+                }).format(parseFloat(cart.cost.totalAmount.amount))}
               </span>
             </div>
 
             {/* 按钮 */}
             <div className="space-y-2">
-              <Button 
-                className="w-full rounded-none h-12" 
+              <Button
+                className="w-full rounded-none h-12"
                 disabled={!cart?.checkoutUrl}
                 onClick={() => {
                   if (!cart?.checkoutUrl) return;
