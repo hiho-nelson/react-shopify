@@ -8,7 +8,7 @@ import { useCartStore } from '@/stores/cartStore';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 
 export function CartSidebar() {
-  const { cart, loading, isOpen, updateQuantity, removeItem, closeCart, isLineUpdating } = useCartStore();
+  const { cart, loading, isOpen, updateQuantity, removeItem, closeCart, isLineUpdating, error, clearError } = useCartStore();
 
   // 控制开合过渡（保持挂载以实现退出动画）
   const [visible, setVisible] = useState(false);
@@ -61,6 +61,24 @@ export function CartSidebar() {
 
         {/* 购物车内容 */}
         <div className="flex-1 overflow-y-auto">
+          {error && (
+            <div className="p-4 bg-red-50 border-l-4 border-red-400 text-red-700 flex items-center justify-between">
+              <p className="text-sm">
+                {error.includes('fetch failed') || error.includes('ECONNRESET') 
+                  ? 'Network error. Please check your connection and try again.'
+                  : error
+                }
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearError}
+                className="h-6 w-6 p-0 text-red-700 hover:text-red-900"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
           {cart?.lines.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-gray-500">
               <ShoppingBag className="h-12 w-12 mb-2" />
@@ -113,7 +131,10 @@ export function CartSidebar() {
                         variant="link"
                         size="sm"
                         className="h-6 w-6 p-0"
-                        onClick={() => updateQuantity(line.id, Math.max(0, line.quantity - 1))}
+                        onClick={() => {
+                          clearError();
+                          updateQuantity(line.id, Math.max(0, line.quantity - 1));
+                        }}
                         disabled={isUpdating}
                       >
                         <Minus className="h-3 w-3" />
@@ -129,7 +150,10 @@ export function CartSidebar() {
                         variant="link"
                         size="sm"
                         className="h-6 w-6 p-0"
-                        onClick={() => updateQuantity(line.id, line.quantity + 1)}
+                        onClick={() => {
+                          clearError();
+                          updateQuantity(line.id, line.quantity + 1);
+                        }}
                         disabled={isUpdating}
                       >
                         <Plus className="h-3 w-3" />
@@ -139,7 +163,10 @@ export function CartSidebar() {
                       variant="ghost"
                       size="sm"
                       className="h-6 w-6 p-0 text-[#b8bca5]"
-                      onClick={() => removeItem(line.id)}
+                      onClick={() => {
+                        clearError();
+                        removeItem(line.id);
+                      }}
                       disabled={isUpdating}
                     >
                       <Trash2 className="h-3 w-3" />

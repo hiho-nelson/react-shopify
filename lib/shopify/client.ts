@@ -370,18 +370,36 @@ class ShopifyClient {
         quantity: update.quantity,
       }));
 
+      console.log('Shopify updateCartLines request:', { cartId, lines });
+
       const data = await this.graphqlRequest(SHOPIFY_QUERIES.CART_LINES_UPDATE, {
         cartId,
         lines
       });
 
+      console.log('Shopify updateCartLines response:', { 
+        userErrors: data.cartLinesUpdate.userErrors,
+        cartExists: !!data.cartLinesUpdate.cart
+      });
+
       if (data.cartLinesUpdate.userErrors.length > 0) {
-        throw new Error(`Update cart failed: ${data.cartLinesUpdate.userErrors.map((e: any) => e.message).join(', ')}`);
+        const errorMessage = `Update cart failed: ${data.cartLinesUpdate.userErrors.map((e: any) => e.message).join(', ')}`;
+        console.error('Shopify user errors:', data.cartLinesUpdate.userErrors);
+        throw new Error(errorMessage);
+      }
+
+      if (!data.cartLinesUpdate.cart) {
+        console.error('No cart returned from Shopify updateCartLines');
+        return null;
       }
 
       return this.transformCart(data.cartLinesUpdate.cart);
     } catch (error) {
-      console.error('Error updating cart:', error);
+      console.error('Error updating cart in Shopify client:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        cartId,
+        lineUpdates
+      });
       return null;
     }
   }

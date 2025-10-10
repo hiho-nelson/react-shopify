@@ -25,6 +25,7 @@ interface CartActions {
   clearCart: () => Promise<void>;
   loadCart: (cartId: string) => Promise<void>;
   isLineUpdating: (lineId: string) => boolean;
+  clearError: () => void;
 }
 
 export const useCartStore = create<CartState & CartActions>()(
@@ -94,8 +95,14 @@ export const useCartStore = create<CartState & CartActions>()(
       },
 
       updateQuantity: async (lineId: string, quantity: number) => {
-        const { cart, updatingLineIds } = get();
+        const { cart, updatingLineIds, removeItem } = get();
         if (!cart?.id) return;
+        
+        // If quantity is 0, use removeItem instead of update
+        if (quantity === 0) {
+          await removeItem(lineId);
+          return;
+        }
         
         // Store original state for rollback
         const originalCart = JSON.parse(JSON.stringify(cart));
@@ -123,40 +130,62 @@ export const useCartStore = create<CartState & CartActions>()(
         });
         
         try {
-          const response = await fetch('/api/cart/update', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              cartId: cart.id, 
-              lineUpdates: [{ id: lineId, quantity }] 
-            }),
-          });
-          
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Cart update failed:', {
-              status: response.status,
-              statusText: response.statusText,
-              error: errorText,
-              cartId: cart.id,
-              lineId,
-              quantity
-            });
-            throw new Error(`Failed to update cart: ${response.status} ${response.statusText} - ${errorText}`);
+          // Retry logic for network issues
+          let lastError;
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              const response = await fetch('/api/cart/update', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  cartId: cart.id, 
+                  lineUpdates: [{ id: lineId, quantity }] 
+                }),
+              });
+              
+              if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Cart update failed (attempt ${attempt}):`, {
+                  status: response.status,
+                  statusText: response.statusText,
+                  error: errorText,
+                  cartId: cart.id,
+                  lineId,
+                  quantity
+                });
+                throw new Error(`Failed to update cart: ${response.status} ${response.statusText} - ${errorText}`);
+              }
+              
+              const data = await response.json();
+              
+              // Remove from updating set and confirm the update
+              const finalUpdatingLineIds = new Set(updatingLineIds);
+              finalUpdatingLineIds.delete(lineId);
+              set({ 
+                cart: data.cart, 
+                updatingLineIds: finalUpdatingLineIds,
+                loading: false 
+              });
+              
+              // Success - break out of retry loop
+              return;
+              
+            } catch (error) {
+              lastError = error;
+              console.warn(`Cart update attempt ${attempt} failed:`, error instanceof Error ? error.message : 'Unknown error');
+              
+              // If this is not the last attempt, wait before retrying
+              if (attempt < 3) {
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+              }
+            }
           }
           
-          const data = await response.json();
+          // All retries failed, throw the last error
+          throw lastError;
           
-          // Remove from updating set and confirm the update
-          const finalUpdatingLineIds = new Set(updatingLineIds);
-          finalUpdatingLineIds.delete(lineId);
-          set({ 
-            cart: data.cart, 
-            updatingLineIds: finalUpdatingLineIds,
-            loading: false 
-          });
         } catch (error) {
-          console.error('Zustand: Error updating cart', {
+          console.error('Zustand: Error updating cart after all retries', {
             error: error instanceof Error ? error.message : 'Unknown error',
             cartId: cart.id,
             lineId,
@@ -203,36 +232,58 @@ export const useCartStore = create<CartState & CartActions>()(
         });
         
         try {
-          const response = await fetch('/api/cart/remove', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cartId: cart.id, lineIds: [lineId] }),
-          });
-          
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Cart remove failed:', {
-              status: response.status,
-              statusText: response.statusText,
-              error: errorText,
-              cartId: cart.id,
-              lineId
-            });
-            throw new Error(`Failed to remove item: ${response.status} ${response.statusText} - ${errorText}`);
+          // Retry logic for network issues
+          let lastError;
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              const response = await fetch('/api/cart/remove', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cartId: cart.id, lineIds: [lineId] }),
+              });
+              
+              if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Cart remove failed (attempt ${attempt}):`, {
+                  status: response.status,
+                  statusText: response.statusText,
+                  error: errorText,
+                  cartId: cart.id,
+                  lineId
+                });
+                throw new Error(`Failed to remove item: ${response.status} ${response.statusText} - ${errorText}`);
+              }
+              
+              const data = await response.json();
+              
+              // Remove from updating set and confirm the update
+              const finalUpdatingLineIds = new Set(updatingLineIds);
+              finalUpdatingLineIds.delete(lineId);
+              set({ 
+                cart: data.cart, 
+                updatingLineIds: finalUpdatingLineIds,
+                loading: false 
+              });
+              
+              // Success - break out of retry loop
+              return;
+              
+            } catch (error) {
+              lastError = error;
+              console.warn(`Cart remove attempt ${attempt} failed:`, error instanceof Error ? error.message : 'Unknown error');
+              
+              // If this is not the last attempt, wait before retrying
+              if (attempt < 3) {
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+              }
+            }
           }
           
-          const data = await response.json();
+          // All retries failed, throw the last error
+          throw lastError;
           
-          // Remove from updating set and confirm the update
-          const finalUpdatingLineIds = new Set(updatingLineIds);
-          finalUpdatingLineIds.delete(lineId);
-          set({ 
-            cart: data.cart, 
-            updatingLineIds: finalUpdatingLineIds,
-            loading: false 
-          });
         } catch (error) {
-          console.error('Zustand: Error removing item', {
+          console.error('Zustand: Error removing item after all retries', {
             error: error instanceof Error ? error.message : 'Unknown error',
             cartId: cart.id,
             lineId
@@ -266,6 +317,8 @@ export const useCartStore = create<CartState & CartActions>()(
         const { updatingLineIds } = get();
         return updatingLineIds.has(lineId);
       },
+      
+      clearError: () => set({ error: null }),
     }),
     {
       name: 'shopify-cart-storage',
