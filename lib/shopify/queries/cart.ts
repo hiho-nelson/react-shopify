@@ -4,7 +4,7 @@ export const CART_CREATE = `
       cart {
         id
         checkoutUrl
-        lines(first: 100) {
+        lines(first: 250) {
           edges {
             node {
               id
@@ -114,7 +114,7 @@ export const CART_LINES_ADD = `
       cart {
         id
         checkoutUrl
-        lines(first: 100) {
+        lines(first: 250) {
           edges {
             node {
               id
@@ -172,7 +172,7 @@ export const CART_LINES_UPDATE = `
       cart {
         id
         checkoutUrl
-        lines(first: 100) {
+        lines(first: 250) {
           edges {
             node {
               id
@@ -230,7 +230,7 @@ export const CART_LINES_REMOVE = `
       cart {
         id
         checkoutUrl
-        lines(first: 100) {
+        lines(first: 250) {
           edges {
             node {
               id

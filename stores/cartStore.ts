@@ -23,7 +23,7 @@ interface CartActions {
   updateQuantity: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
   clearCart: () => Promise<void>;
-  loadCart: (cartId: string) => Promise<void>;
+  loadCart: (cartId?: string) => Promise<void>;
   isLineUpdating: (lineId: string) => boolean;
   clearError: () => void;
 }
@@ -109,13 +109,16 @@ export const useCartStore = create<CartState & CartActions>()(
         const originalLine = cart.lines.find(line => line.id === lineId);
         if (!originalLine) return;
         
-        // Optimistic update: immediately update the UI (only quantity, let Shopify handle costs)
+        // Optimistic update: immediately update the UI (quantity and totalQuantity)
         const updatedCart = {
           ...cart,
           lines: cart.lines.map(line => 
             line.id === lineId 
               ? { ...line, quantity }
               : line
+          ),
+          totalQuantity: cart.lines.reduce((sum, line) => 
+            sum + (line.id === lineId ? quantity : line.quantity), 0
           )
           // Don't update costs optimistically - let Shopify calculate them
         };
@@ -159,12 +162,14 @@ export const useCartStore = create<CartState & CartActions>()(
               const data = await response.json();
               
               // Remove from updating set and confirm the update
-              const finalUpdatingLineIds = new Set(updatingLineIds);
-              finalUpdatingLineIds.delete(lineId);
-              set({ 
-                cart: data.cart, 
-                updatingLineIds: finalUpdatingLineIds,
-                loading: false 
+              set((state) => {
+                const finalUpdatingLineIds = new Set(state.updatingLineIds);
+                finalUpdatingLineIds.delete(lineId);
+                return {
+                  cart: data.cart,
+                  updatingLineIds: finalUpdatingLineIds,
+                  loading: false
+                };
               });
               
               // Success - break out of retry loop
@@ -194,13 +199,15 @@ export const useCartStore = create<CartState & CartActions>()(
           });
           
           // Rollback to original state
-          const finalUpdatingLineIds = new Set(updatingLineIds);
-          finalUpdatingLineIds.delete(lineId);
-          set({ 
-            cart: originalCart,
-            updatingLineIds: finalUpdatingLineIds,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            loading: false 
+          set((state) => {
+            const finalUpdatingLineIds = new Set(state.updatingLineIds);
+            finalUpdatingLineIds.delete(lineId);
+            return {
+              cart: originalCart,
+              updatingLineIds: finalUpdatingLineIds,
+              error: error instanceof Error ? error.message : 'Unknown error',
+              loading: false
+            };
           });
         }
       },
@@ -243,12 +250,14 @@ export const useCartStore = create<CartState & CartActions>()(
               const data = await response.json();
               
               // Remove from updating set and update cart with server response
-              const finalUpdatingLineIds = new Set(updatingLineIds);
-              finalUpdatingLineIds.delete(lineId);
-              set({ 
-                cart: data.cart, 
-                updatingLineIds: finalUpdatingLineIds,
-                loading: false 
+              set((state) => {
+                const finalUpdatingLineIds = new Set(state.updatingLineIds);
+                finalUpdatingLineIds.delete(lineId);
+                return {
+                  cart: data.cart,
+                  updatingLineIds: finalUpdatingLineIds,
+                  loading: false
+                };
               });
               
               // Success - break out of retry loop
@@ -276,12 +285,14 @@ export const useCartStore = create<CartState & CartActions>()(
           });
           
           // Remove from updating set and show error
-          const finalUpdatingLineIds = new Set(updatingLineIds);
-          finalUpdatingLineIds.delete(lineId);
-          set({ 
-            updatingLineIds: finalUpdatingLineIds,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            loading: false 
+          set((state) => {
+            const finalUpdatingLineIds = new Set(state.updatingLineIds);
+            finalUpdatingLineIds.delete(lineId);
+            return {
+              updatingLineIds: finalUpdatingLineIds,
+              error: error instanceof Error ? error.message : 'Unknown error',
+              loading: false
+            };
           });
         }
       },
@@ -291,12 +302,45 @@ export const useCartStore = create<CartState & CartActions>()(
         if (!cart?.id) return;
         
         const lineIds = cart.lines.map(line => line.id);
-        for (const lineId of lineIds) {
-          await removeItem(lineId);
-        }
+        // Use Promise.allSettled to ensure all deletions are attempted even if some fail
+        await Promise.allSettled(lineIds.map(id => removeItem(id)));
       },
 
-      loadCart: async () => Promise.resolve(),
+      loadCart: async (cartId?: string) => {
+        if (!cartId) return;
+        try {
+          console.log('🔄 Loading cart from server:', cartId);
+          set({ loading: true, error: null });
+          const res = await fetch(`/api/cart?id=${cartId}`);
+          
+          if (!res.ok) {
+            // Cart expired or not found - clear localStorage and start fresh
+            if (res.status === 404) {
+              console.log('❌ Cart expired (404), clearing localStorage');
+              localStorage.removeItem('shopify-cart-storage');
+              set({ cart: null, loading: false, error: null });
+              return;
+            }
+            throw new Error(`Failed to load cart: ${res.status}`);
+          }
+          
+          const data = await res.json();
+          console.log('✅ Cart loaded from server:', {
+            cartId: data.cart.id,
+            lines: data.cart.lines.length,
+            totalQuantity: data.cart.totalQuantity
+          });
+          
+          set({ cart: data.cart, loading: false });
+        } catch (error) {
+          console.error('❌ Failed to load cart:', error);
+          // On network error, keep trying to load next time but don't show error to user
+          set({ 
+            loading: false, 
+            error: null // Silent failure - will retry on next page load
+          });
+        }
+      },
       
       isLineUpdating: (lineId: string) => {
         const { updatingLineIds } = get();
@@ -307,12 +351,46 @@ export const useCartStore = create<CartState & CartActions>()(
     }),
     {
       name: 'shopify-cart-storage',
-      // use default localStorage; no custom hydration flags
-      partialize: (state) => ({
-        cart: state.cart,
-        isOpen: state.isOpen,
-        // Don't persist loading, error, or updatingLineIds as they are temporary states
-      }),
+      storage: {
+        getItem: (name) => {
+          // ✅ Use localStorage to persist cart across browser sessions
+          const str = localStorage.getItem(name);
+          return str ? JSON.parse(str) : null;
+        },
+        setItem: (name, value) => {
+          localStorage.setItem(name, JSON.stringify(value));
+        },
+        removeItem: (name) => {
+          localStorage.removeItem(name);
+        },
+      },
+      partialize: (state) => {
+        // ✅ CRITICAL: Only persist cart ID, not the entire cart object
+        // This ensures data is always fetched fresh from Shopify on page load
+        // We save a minimal cart object with just the ID
+        return {
+          cart: state.cart ? { 
+            id: state.cart.id,
+            lines: [],
+            totalQuantity: 0,
+            cost: state.cart.cost,
+          } as ShopifyCart : null,
+        } as any;
+      },
+      onRehydrateStorage: () => (state) => {
+        // ✅ Always validate and reload cart from Shopify server after hydration
+        const cartId = state?.cart?.id;
+        if (cartId) {
+          console.log('🔄 Rehydrating cart from localStorage, validating with server:', cartId);
+          // Use setTimeout to ensure this runs after hydration is complete
+          setTimeout(() => {
+            state.loadCart(cartId);
+          }, 100);
+        } else {
+          console.log('🔄 No cart ID found in localStorage');
+        }
+      },
     }
   )
 );
+

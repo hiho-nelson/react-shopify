@@ -151,9 +151,10 @@ export function useCart(cartId?: string): UseCartReturn {
 
   const clearCart = useCallback(async () => {
     if (!cart?.id) return;
-
     const lineIds = cart.lines.map(line => line.id);
-    await removeItem(lineIds[0]); // Remove first item, this will trigger a refresh
+    for (const id of lineIds) {
+      await removeItem(id);
+    }
   }, [cart?.id, cart?.lines, removeItem]);
 
   const refreshCart = useCallback(async () => {

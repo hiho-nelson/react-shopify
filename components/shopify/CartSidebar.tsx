@@ -90,14 +90,14 @@ export function CartSidebar() {
               </Button>
             </div>
           )}
-          {cart?.lines.length === 0 ? (
+          {(cart?.lines?.length ?? 0) === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-gray-500">
               <ShoppingBag className="h-12 w-12 mb-2" />
               <p>Your cart is empty</p>
             </div>
           ) : (
             <div className="p-4 space-y-4">
-              {cart?.lines.map((line) => {
+              {(cart?.lines ?? []).map((line) => {
                 const isUpdating = isLineUpdating(line.id);
                 return (
                   <div
