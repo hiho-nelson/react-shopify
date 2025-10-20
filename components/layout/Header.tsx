@@ -169,7 +169,7 @@ export function Header() {
         <div className={`w-full flex justify-between items-center ${solid ? 'h-20' : 'h-36'} transition-[height] duration-300`}>
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className={`text-2xl font-bold transition-colors duration-300 ease-in-out ${solid ? 'text-gray-900' : 'text-white'}`}>Christopher Photos</span>
+            <span className={`lg:text-2xl text-xl font-bold transition-colors duration-300 ease-in-out ${solid ? 'text-gray-900' : 'text-white'}`}>Christopher Photos</span>
           </Link>
 
           {/* Right: menu + account/cart */}
@@ -178,13 +178,13 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-2 relative">
             <Link 
               href="#" 
-              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md font-light transition-colors duration-300 ease-in-out header-nav-menu`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">About Me</span>
             </Link>
             <button
               type="button"
-              className={`px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out ${solid ? (megaOpen ? 'text-gray-900' : 'text-gray-700 hover:text-gray-900') : (megaOpen ? 'text-white' : 'text-white/90 hover:text-white')}`}
+              className={`px-3 py-2 rounded-md font-light transition-colors duration-300 ease-in-out header-nav-menu ${solid ? (megaOpen ? 'text-gray-900' : 'text-gray-700 hover:text-gray-900') : (megaOpen ? 'text-white' : 'text-white/90 hover:text-white')}`}
               onMouseEnter={openMega}
               onFocus={openMega}
               onMouseLeave={closeMega}
@@ -195,19 +195,19 @@ export function Header() {
             </button>
             <Link 
               href="#" 
-              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md font-light transition-colors duration-300 ease-in-out header-nav-menu`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Process</span>
             </Link>
             <Link 
               href="#" 
-              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md font-light transition-colors duration-300 ease-in-out header-nav-menu`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200">Blog</span>
             </Link>
             <Link 
               href="#" 
-              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md text-base md:text-lg font-light transition-colors duration-300 ease-in-out`}
+              className={`${solid ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'} px-3 py-2 rounded-md font-light transition-colors duration-300 ease-in-out header-nav-menu`}
             >
               <span className="relative inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-current after:w-0 hover:after:w-full after:transition-all after:duration-200 border px-7 py-2" style={{borderColor: solid ? '#6b7280' : 'white'}}>Contact Me</span>
             </Link>

@@ -206,4 +206,21 @@
   .capture-notes-prose > * + * {
     margin-top: 1rem;
   }
+  
+  /* Header menu responsive font size */
+  .header-nav-menu {
+    font-size: 1rem; /* text-base */
+  }
+  
+  @media (min-width: 768px) {
+    .header-nav-menu {
+      font-size: 1.125rem; /* text-lg */
+    }
+  }
+  
+  @media (max-width: 1018px) and (min-width: 768px) {
+    .header-nav-menu {
+      font-size: 0.875rem; /* text-sm - smaller at 1018px breakpoint */
+    }
+  }
 }
