@@ -111,6 +111,22 @@ export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex min-h-[500px] max-h-[80vh]">
+          {/* Left Side - Product Image */}
+          <div className="w-1/2 bg-gray-50 relative overflow-hidden">
+            {image && (
+              <Image 
+                src={image.url} 
+                alt={image.altText || product.title} 
+                fill 
+                className="object-cover transition-opacity duration-300" 
+                sizes="(max-width: 768px) 100vw, 50vw"
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                priority={false}
+              />
+            )}
+          </div>
+
           {/* Right Side - Product Information */}
           <div className="w-1/2 bg-white p-8 flex flex-col">
             {/* Close Button */}
@@ -225,22 +241,6 @@ export function QuickAddModal({ product, open, onClose }: QuickAddModalProps) {
                 </a>
               </div>
             </div>
-          </div>
-
-          {/* Left Side - Product Image */}
-          <div className="w-1/2 bg-gray-50 relative overflow-hidden">
-            {image && (
-              <Image 
-                src={image.url} 
-                alt={image.altText || product.title} 
-                fill 
-                className="object-cover transition-opacity duration-300" 
-                sizes="(max-width: 768px) 100vw, 50vw"
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                priority={false}
-              />
-            )}
           </div>
         </div>
       </div>
